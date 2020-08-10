@@ -1,0 +1,110 @@
+	<style type="text/css">
+		html,body{background: #f4f4f4;}
+	</style>
+	<body id="evaluation-list">
+		<div class="service-evaluation">
+			<p>服务评价：<?=number_format($evaluate['coun_level'],2)?>
+				<?=evaluate(['level'=>$evaluate['coun_level'],'label'=>'span','content'=>'','class_item'=>'icon-shoucang','class_active'=>'icon-wodeshoucang'])?>
+			</p>
+		</div>
+		<div id="mescroll" class="mescroll" style="height: 94vh;">
+			<ul class="evaluation-ul" id="app" v-cloak>
+				<li v-for="(item,index) in list">
+					<img class="mui-media-object" :src="item.headimg">
+					<div>
+						<h3>{{item.nickname}}<span class="right">{{item.time}}</span></h3>
+						<div class="marking-div">
+							<span class="scoring">评分：</span>
+							<span v-html="item.level"></span>
+						</div>
+						<p>{{item.content}}</p>
+						<ul><li v-for="images in item.img"><img class="mui-media-object" :src="images"  data-preview-src="" :data-preview-group="item.id"></li></ul>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<link rel="stylesheet" href="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.css">
+		<script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+		<script src="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.js" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="<?=base_url('resource');?>/css/img_size.css"/>
+		<script src="<?=base_url('resource');?>/js/mui.zoom.js"></script>
+		<script src="<?=base_url('resource');?>/js/mui.previewimage.js"></script>
+		<script type="text/javascript">
+			var ve = new Vue({
+				el: "#app",
+				data: {
+					list: [],
+				},
+				methods: {
+					links: function(id,distance) {
+						sessionStorage.setItem('distance',distance);
+						window.location.href="<?=site_url('shop/details/')?>"+id;
+					}
+				}
+			})			
+			//数据刷新
+			var mescroll = new MeScroll("mescroll", {
+				up: {
+					callback: upCallback,
+					isBounce: false, //此处禁止ios回弹,解析(务必认真阅读,特别是最后一点): http://www.mescroll.com/qa.html#q10
+					page: {
+						num: 0, //当前页数
+						size: 10 //每页显示条数
+					},
+					htmlNodata: '<p class="upwarp-nodata">--没有更多了--</p>',
+					noMoreSize: 10, //数据大于多少条时显示htmlNodata
+					toTop: {
+						//回到顶部
+						src: "http://www.mescroll.com/demo/res/img/mescroll-totop.png", //回到顶部图片样子
+						offset: 10 //滚动到多少个PX时出现回到顶部
+					},
+					empty: {
+						warpId: "data-null",
+						//icon:"http://www.mescroll.com/demo/dotJump/option/mescroll-empty.png",
+						tip: '<div class="nolist-div" style="background:#fff;"><span class="iconfont icon-zanwuxinxi"></span><p>暂无此商品</p></div>'
+					}
+				}
+			})
+			//上拉加载回调函数
+			function upCallback(page) {
+				data_ajax({
+					page: page.num,
+					limit: page.size,
+					index:"1",
+					shop_id:"<?=$id?>"
+				}, function(pageTool, data) {
+					var len = data.length;
+					if(page.num == 1) {
+						ve.list = [];
+					}
+					mescroll.endByPage(len, pageTool);
+					for(var i = 0; i < data.length; i++) {
+						ve.list.push(data[i]);
+					}
+				})
+			}
+			//模拟服务器端数据
+			function data_ajax(data, succEvent) {
+				setTimeout(function() {
+					//ajax获取数据
+					$.ajax({
+						url: "<?=site_url('shop/evaluate')?>",
+						data: data,
+						dataType: "json",
+						type: "get",
+						timeout:10000,
+						success: function(res) {
+							if(res.state === "success") {
+								succEvent(res.pageTool, res.data);
+							}
+						},
+						error:function(data){
+							//异常处理；
+							mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+							mescroll.endErr();
+						}
+					});
+				}, 500)
+			}
+			mui.previewImage();
+		</script>

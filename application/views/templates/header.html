@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+		<meta content="yes" name="apple-mobile-web-app-capable"/>
+		<meta content="yes" name="apple-touch-fullscreen"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no"/>
+		<meta charset="UTF-8"/>
+		<title><?=$title?></title>
+		<script type="text/javascript" src="<?=base_url('resource/home');?>/js/flexible.js"></script>
+		<link rel="stylesheet" type="text/css" href="<?=base_url('resource/home');?>/css/iconfont2.css">
+		<link rel="stylesheet" type="text/css" href="<?=base_url('resource/home');?>/css/iconfont.css">
+		<link rel="stylesheet" type="text/css" href="<?=base_url('resource/home');?>/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="<?=base_url('resource/home');?>/css/swiper.min.css" />
+		<link rel="stylesheet" type="text/css" href="<?=base_url('resource/home');?>/css/style.css">
+		<link rel="stylesheet" type="text/css" href="<?=base_url('resource/css');?>/loading.css">
+		<script type="text/javascript" src="<?=base_url('resource');?>/js/jquery-3.3.1.min.js"></script>
+		<script type="text/javascript" src="<?=base_url('resource/home');?>/js/swiper.min.js"></script>
+		<script type="text/javascript" src="<?=base_url('resource/home');?>/js/mui.min.js"></script>
+		<script type="text/javascript" src="<?=base_url('resource/js');?>/loading.js"></script>
+		<style type="text/css">
+			[v-cloak] {
+			  display: none;
+			}
+			html,body{
+				background: #ffffff;
+			}
+			.edit_details_text em,.edit_details_text em strong,.edit_details_text strong em{font-style: italic;}
+  			.edit_details_text strong{font-weight: bold;}
+  			.edit_details_text em strong,.edit_details_text strong em{font-weight: bold;}
+  			.edit_details_text img{max-width: 100%;}
+  			#data-null .nolist-div{background: #fff;}
+		</style>
+		<script type="text/javascript">
+			function sign_out(){
+				window.location.href="<?=site_url('login/index')?>";
+			}
+			
+			function tel(tel){
+				mui.confirm('', tel,['取消','呼叫'], function(e) {
+					if(e.index){
+						location.href="tel:"+tel;
+					}
+				},'div')
+			}
+			
+			function map(type,id){
+                localStorage.setItem('user_map',JSON.stringify({type:type,id:id}));
+              	setTimeout(function() {
+					window.location.href="<?=site_url('city/map')?>";
+              	}, 300);
+			}
+            let app_url="<?=$this->config->item('user_host');?>";
+            let usr_id="<?=$uid?>";
+          	let page_name="<?=$page_name?>";
+         	// hui.loading("努力加载中");
+         	 window.onload=function (){
+               // alert('asdfsdf');
+               setTimeout(function(){ 
+                $("#onload").hide();
+               },500)
+              
+				//hui.closeLoading();
+            }
+            
+		</script>
+      <style type="text/css">
+		.spinner {
+            width: 60px;
+            height: 60px;
+            position:relative;
+            margin:-30px auto 0;
+			top: 50%;
+          }
+
+          .double-bounce1, .double-bounce2 {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: #67CF22;
+            opacity: 0.6;
+            position: absolute;
+            top: 0;
+            left: 0;
+
+            -webkit-animation: bounce 2.0s infinite ease-in-out;
+            animation: bounce 2.0s infinite ease-in-out;
+          }
+
+          .double-bounce2 {
+            -webkit-animation-delay: -1.0s;
+            animation-delay: -1.0s;
+          }
+
+          @-webkit-keyframes bounce {
+            0%, 100% { -webkit-transform: scale(0.0) }
+            50% { -webkit-transform: scale(1.0) }
+          }
+
+          @keyframes bounce {
+            0%, 100% {
+              transform: scale(0.0);
+              -webkit-transform: scale(0.0);
+            } 50% {
+              transform: scale(1.0);
+              -webkit-transform: scale(1.0);
+            }
+          }
+          #onload{
+			  position: fixed;
+			  left: 0;
+			  top: 0;
+			  width: 100vw;
+			  height: 100vh;
+			  background: rgba(0,0,0,.2);
+			  z-index: 99999999999999991;
+		  }
+		</style>
+		<style type="text/css">
+         
+			input::-ms-clear{display: none;}
+			input::-ms-reveal{display: none;}
+			.mui-icon-clear{display: none;}
+            .mui-bar-nav{box-shadow:0 0px 0px #ccc;}
+          .comodity-list-top{border:none;}
+		</style>
+	</head>
+		
+		
+		
+		

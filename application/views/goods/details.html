@@ -1,0 +1,568 @@
+<style type="text/css">
+	html,
+	body {
+		background: #ffffff;
+	}
+	#price{ color: #e32c0e;}
+	/*协议*/
+	.show_xy_btn{
+		position: absolute;
+		bottom: 0;left: 0;height:44px;
+		background: #FFFFFF;width: 100%;color: #FFFFFF;z-index: 99999;text-align: center;
+		line-height: 44px;
+		font-size: 17px;
+		color: #007aff;
+		border-top: 1px solid #ececec;
+	}
+	.scroll-box{width: 100%;height:450px;background: #FFFFFF;overflow-y: auto;}
+	.scroll-title{text-align: center;height: 44px;line-height: 44px;background:#4187f7;margin: 0;color: #FFFFFF;font-size: 0.4rem;position: relative;z-index: 3;}
+	.scroll-content-box{padding: 0 10px 50px 10px;}
+	/*新增*/
+	.numBox{
+		position: fixed;
+		left: 0;
+		top: 0;
+		background: rgba(0,0,0,0.5);
+		width: 100%;
+		height: 100%;
+		z-index: 9;
+	}
+	.num-list{
+		width: 8rem;
+		height: 4rem;
+		background: ghostwhite;
+		border-radius: 10px;
+		position: absolute;
+		top:50%;
+		left: 50%;
+		margin-left: -4rem;
+		margin-top: -2rem;
+	}
+	.num-input,.num-btn{
+		display: flex;
+		flex-direction:row;
+		margin: 0 auto;
+		-webkit-justify-content: center;
+		justify-content: center;
+	}
+	
+	.title{
+		text-align: center;
+		font-size: 0.4rem;
+		padding-top: 0.3rem;
+		margin-bottom: 0.5rem;
+	}
+	.num-input .num-dj,.num-input .num-zj{
+		width: 1rem;
+		height: 1rem;
+		border: 1px solid #eee;
+		text-align: center;
+		line-height: 1rem;
+		font-size: 0.32rem;
+		font-weight: bold;
+	}
+	.num-input .num-text{
+		width: 2rem;
+		height: 1rem;
+		border-top: 1px solid #eee;
+		border-bottom: 1px solid #eee;
+		overflow: hidden;
+	}
+	.num-btn{
+		padding-top:0.5rem;
+	}
+	.num-btn button{
+		margin: 0 0.3rem;
+		border: none;
+		color: #FFFFFF;
+		font-size: 0.32rem;
+	}
+	.num-btn button:nth-child(1){
+		background: #3f3f3f;
+	}
+	.num-btn button:nth-child(2){
+		background: #ed233b;
+	}
+	.num-text input{
+		border: none;
+		height: 100%;
+		width: 100%;
+		text-align: center;
+	}
+</style>
+
+<body id="index" class="commodity-details">
+	<div class="swiper-container swiper-container1">
+		<div class="swiper-wrapper">
+			<?php foreach($goods['images'] as $key=>$item):?>
+				<div class="swiper-slide"><img class="mui-media-object" src="<?=$item?>" alt="<?=$goods['name']?>" /></div>
+			<?php endforeach;?>
+		</div>
+		<div class="swiper-pagination"></div>
+	</div>
+	<div class="cd-title-div">
+		<p class="price">¥<span id="price"><?=$goods['price']?></span>
+			<?php if($goods['type']=="1"):?>
+				<a class="vehicle-part" href="javascript:;">通用包·圆</a>
+			<?php elseif($goods['type']=="2"):?>
+				<a class="vehicle-part" href="javascript:;">通用包·扁</a>
+			<?php elseif($goods['type']=="3"):?>
+				<a class="vehicle-part" href="javascript:;">专车件</a>
+			<?php endif;?>
+		</p>
+		
+		<?php if($goods['type']=="3"):?>
+			<p class="title1 overflow"><?=$goods['name']?></p>
+			<p class="title2">试用排量：<?=$goods['cggs_name']?></p>
+			<p class="title2">适用车型：<?=$goods['ct_name']?>-<?=$goods['cs_name']?>-<?=$goods['cgs_name']?></p>
+			<?php if($goods['oe_number']):?>
+			<p class="title2 overflow">OE号：<?=$goods['oe_number']?><span class="right">已售：<?=$goods['sales_num']+$goods['sales_nums']?>单</span></p>
+			<?php endif;?>
+		<?php else:?>
+			<p class="title1 overflow"><?=$goods['name']?> <span class="right">已售：<?=$goods['sales_num']+$goods['sales_nums']?>单</span></p>
+		<?php endif;?>
+		
+	</div>
+	<?php if($goods['param']):?>
+	<div class="chance-div overflow">
+		<span class="specifications left">规格：</span>
+		<ul id="checkBox" class="overflow">
+			<?php foreach($goods['param'] as $key=>$item):?>
+			<li>
+				<input name="radio" value="<?=$item['price']?>" type="checkbox" data-id="<?=$item['id']?>">
+				<span><?=$item['name']?></span>
+			</li>
+			<?php endforeach;?>
+		</ul>
+	</div>
+	<?php endif;?>
+	<div class="explain-div">
+		<span data-id="156" data-title="购买说明"><i class="iconfont icon-gou"></i>购买说明</span>
+		<span data-id="159" data-title="安装说明"><i class="iconfont icon-gou"></i>安装说明</span>
+		<span data-id="158" data-title="退换货说明"><i class="iconfont icon-gou"></i>退换货说明</span>
+	</div>
+	<ul class="cfh-ul1">
+		<li class="li1" onClick="shoplist()">
+			<?php if($user_shop):?>
+				<input type="hidden" id="shop_id" value="<?=$user_shop['id']?>" />
+				<span><?=$user_shop['name']?></span>
+			<?php else:?>
+				<span>选择预约维修站点</span>
+			<?php endif;?>
+			
+			<a></a>
+		</li>
+		<?php if($goods['o_titile']):?>
+		<li class="li1 promotion">
+			<span>促销：<i class="give">赠</i><?=$goods['o_titile']?></span>
+		</li>
+		<?php endif;?>
+	</ul>
+	<div class="index-firstcontent">
+		<div class="column-title">
+			<h3>商品推荐</h3>
+		</div>
+		<ul class="mui-table-view mui-grid-view Purchase-list">
+			<?php foreach($tuijian as $key=>$item):?>
+			<li class="mui-table-view-cell mui-media mui-col-xs-6">
+				<a href="<?=site_url('goods/details/').$item['id']?>">
+					<div class="border-box">
+					<?php if($item['type']==="1"):?>
+								<span class="common-bag">通用包*圆</span>
+								<?php endif;?>
+								<?php if($item['type']==="2"):?>
+								<span class="common-bag">通用包*扁</span>
+								<?php endif;?>
+						<div class="img-box">
+							<img class="mui-media-object" src="<?=strArr($item['images'])[0]?>">
+						</div>
+						<div class="mui-media-body comodity"><?=$item['name']?></div>
+						<div class="mui-media-body amounts">¥  <?=$item['price']?></div>
+						<div class="mui-media-body sold">已售：<?=$item['sales_num']+$item['sales_nums']?>单</div>
+					</div>
+				</a>
+			</li>
+			<?php endforeach;?>
+		</ul>
+		<div class="column-title">
+			<h3>商品详情</h3>
+		</div>
+		<div class="goods-details edit_details_text">
+			 <?=$goods['content']?>
+		</div>
+	</div>
+
+	<div class="outermost-layer">
+		<div class="flex-bottom operate-box" >
+			<ul>
+				<li class="service-cell" data-type="tel" data-tel="<?=$tel?>">
+					<span class="iconfont icon-kefudianhua"></span>
+					<a>客服电话</a>
+				</li>
+				<li data-type="shouc" data-id="<?=$goods['id']?>">
+					<?php if($goods['user_shouc']):?>
+						<span class="iconfont icon-wodeshoucang"></span>
+						<a id="shouc_text">已收藏</a>
+					<?php else:?>
+						<span class="iconfont icon-shoucang"></span>
+						<a id="shouc_text">收藏</a>
+					<?php endif;?>
+				</li>
+				<li data-type="shopping">
+					<a href="javascript:;">
+						<span class="iconfont icon-caigou relative"><span class="mui-badge"><?=$shoping_sum?></span></span>
+						<a href="javascript:;">购物车</a>
+					</a>
+				</li>
+			</ul>
+			<style type="text/css">
+				.ul2 span{display: none;}
+			</style>
+			<ul class="ul2">
+				<li data-state="2" data-type="addShopping" data-id="<?=$goods['id']?>">
+					<a href="javascript:;">加入购物车</a>
+					<span style="color:  #e32c0e;font-size:150px;">+1</span>
+				</li>
+				<li data-type="goShopping" data-id="<?=$goods['id']?>">
+					<a href="javascript:;">立即购买</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<div id="picture" class="mui-popover mui-popover-action mui-popover-bottom">
+		<div class="scroll-box">
+			<div class="mui-scroll-wrapper" style="border-radius: 0;margin: 0px;">
+				<h4 class="scroll-title">购买协议</h4>
+				<div class="mui-scroll">
+					<?php foreach($xiyi as $key=>$item):?>
+						<?php if($item['id']==156||$item['id']==159||$item['id']==158):?>
+							<div class="scroll-content-box edit_details_text" id="box_<?=$item['id']?>" style="display: none;"><?=$item['content']?></div>
+						<?php endif;?>
+					<?php endforeach;?>
+				</div>
+				<a href="#picture" class="show_xy_btn">确认</a>
+			</div>
+		</div>
+	</div>
+	
+	<div class="numBox" id="vapp" v-if="numshow">
+		<div class="num-list">
+			<h3 class="title">设置购买数量</h3>
+			<div class="num-input">
+				<div class="num-dj" @click="numset(1)">-</div>
+				<div class="num-text"><input @ maxlength="3" v-on:keyup="val" :value="num" type="text"></div>
+				<div class="num-zj" @click="numset(2)">+</div>
+			</div>
+			<div class="num-btn">
+				<button @click="hideNum(1)">取消</button>
+				<button @click="hideNum(2)">确定</button>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+	<script src="<?=base_url('resource/js/');?>jquery.fly.min.js" type="text/javascript" charset="utf-8"></script>
+    
+	<script>
+
+		var ve = new Vue({
+			el: "#vapp",
+			data: {
+				numshow: false,
+				num:1,
+				postdata:{}
+			},
+			watch:{
+				s:function(){
+					//强制输入正整数
+					//this.num=this.num.replace(/^(0+)|[^\d]+/g,'');
+				}
+			},
+			methods: {
+				numset(type){
+					let num=type===1 ?  this.num-1 : this.num+1;
+					if(num<=1){
+						this.num=1;
+					}else if(num>=200){
+						this.num=200;
+					}else{
+						this.num=num;
+					}
+				},
+				val(e){
+					e.target.value=e.target.value.replace(/^(0+)|[^\d]+/g,'');
+					if(e.target.value){
+						if(parseInt(e.target.value)>=200){
+							this.num=200;
+						}else{
+							this.num=parseInt(e.target.value);
+						}
+					}else{
+						this.num=1;
+					}
+				},
+				hideNum(index){
+					if(index===2){
+						let	data=this.postdata
+						data.order[0].num=this.num;
+						addToOrder(data);
+					}
+					this.numshow=false;
+				}
+			}
+		})
+
+
+      	mui.init();
+     
+ 		function shoplist(){
+           localStorage.setItem('goods_types',"<?=$goods['types']?>");
+           window.location.href="<?=site_url('shop/index')?>";
+        	
+        }
+    //
+		function addToOrder(data){
+				hui.loading("订单提交中...");
+				//立即购买
+				mui.ajax('<?=site_url("order/orderLog")?>',{
+					data:data,
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					success:function(res){
+						hui.closeLoading(function(){
+							if(res.state){
+								mui.confirm("请在24小时之内完成支付！"," ",['知道了'],function(){
+									window.location.href="<?=site_url('order/index/')?>"+res.order_code;  
+								},"div")
+							}else{
+								if(res.code===101){
+									sign_out();
+								}else{
+									mui.toast(res.msg, {duration: '500ms',type: 'div'});
+								}
+							}
+							
+						});
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						mui.toast("网络发生错误！", {duration: '500ms',type: 'div'});
+					}
+				});
+			}
+		mui.ready(function(){
+			//规格id
+			let spec_id="";
+			mui('.mui-scroll-wrapper').scroll({
+				scrollY: true, //是否竖向滚动
+				scrollX: false, //是否横向滚动
+				startX: 0, //初始化时滚动至x
+				startY: 0, //初始化时滚动至y
+				indicators: false, //是否显示滚动条
+				deceleration:0.0006, //阻尼系数,系数越小滑动越灵敏
+				bounce: false //是否启用回弹
+			});
+			//说明
+			mui(".explain-div").on("tap","span",function(){
+				mui('.mui-popover').popover('toggle');
+				var data=$(this).data();
+				$(".scroll-title").text(data.title)
+				$(".scroll-content-box").hide();
+				$("#box_"+data.id).show();
+				mui('.mui-scroll-wrapper').scroll().scrollTo(0,0,100);
+			})
+          
+			//客服电话|收藏|去购物车
+			mui(".operate-box").on("tap","li",function(event){
+              
+				var shop_id=$("#shop_id").val();
+				var thisE=this;
+				var data=$(thisE).data();
+            
+				if(data.type=="tel"){
+                 	mui.confirm('',data.tel,['取消','呼叫'], function(e) {
+                     
+						if(e.index){
+							location.href="tel:"+data.tel;
+						}
+					},'div');
+                    
+                 
+				}else if(data.type=="shouc"){
+					//收藏产品
+					var span=$(thisE).find('span'),shouc_type="";
+					//var mask=mui.createMask();
+					hui.loading();
+					mui.ajax('<?=site_url("goods/shouc")?>',{
+						data:{id:data.id,shouc_type:shouc_type},
+						dataType:'json',//服务器返回json格式数据
+						type:'post',//HTTP请求类型
+						timeout:10000,//超时时间设置为10秒；
+						success:function(res){
+							hui.closeLoading(function(){
+								if(res.state){
+									if(res.code===1){
+										span.removeClass("icon-shoucang").addClass("icon-wodeshoucang");
+										$("#shouc_text").text(" 已收藏");
+									}
+									if(res.code===2){
+										span.removeClass("icon-wodeshoucang").addClass("icon-shoucang");
+										$("#shouc_text").text(" 收藏");
+									}
+									mui.toast(res.msg, {duration: '500ms',type: 'div'});
+								}else{
+									//去登录
+									sign_out();
+								}	
+							},500);
+						},
+						error:function(xhr,type,errorThrown){
+							//异常处理；
+							mui.toast("网络发生错误！", {duration: '500ms',type: 'div'});
+						}
+					});
+					
+					
+				}else if(data.type=="shopping"){
+					$user="<?=$user?>";
+					if($user){
+						window.location.href="<?=site_url('storage/shopping')?>";
+					}else{
+						//去登录
+						sign_out();
+					}
+				}else if(data.type=="addShopping"){
+					//加入购物车业务逻辑
+					var startEl=$(this).find('span');
+					var enedEl=$('.mui-badge');
+					if(shop_id){
+						//处理加入购物车
+						hui.loading();
+						mui.ajax('<?=site_url("goods/addShopping")?>',{
+							data:{id:data.id,spec_id:spec_id,shop_id:shop_id},
+							dataType:'json',//服务器返回json格式数据
+							type:'post',//HTTP请求类型
+							timeout:10000,//超时时间设置为10秒；
+							success:function(res){
+								hui.closeLoading();
+								if(res.state){
+									$(thisE).attr('data-state',"1");
+									addAnimation(startEl,enedEl,event);
+								}else{
+									if(res.code==200){
+										//去登录
+										sign_out();
+									}else{
+										$(thisE).attr('data-state',"1");
+										mui.toast(res.msg, {duration: '2000ms',type: 'div'});
+									}
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								//异常处理；
+								mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+							}
+						});
+					}else{
+						mui.toast("请先选择维修站点！", {duration: '500ms',type: 'div'});
+					}
+				}else if(data.type=="goShopping"){
+					if(shop_id){
+						ve.postdata={order:[{id:data.id,num:1,spec_id:spec_id,shop_id:shop_id}]}
+						ve.numshow=true;
+						//console.log(postData)
+						//return;
+						
+					}else{
+						mui.toast("请先选择维修站点！", {duration: '500ms',type: 'div'});
+					}
+				}
+			})
+			
+
+			//加入购物车动画
+			function addAnimation(startEl,enedEl,event){
+				var scrollTop=$(window).scrollTop();
+				var offset = enedEl.offset();
+				offset.top=offset.top-scrollTop;
+				event.pageX=event.detail.center.x;
+				event.pageY=event.detail.center.y-100-scrollTop;
+				
+				var thisItem = startEl;  
+				var flyer = thisItem.clone(); 
+			    flyer.fly({  
+			        start: {  
+			            left: event.pageX,  
+			            top: event.pageY  
+			        },  
+			        end: {  
+			            left: offset.left + 10,  
+			            top: offset.top,  
+			            width: 0,  
+			            height: 0  
+			        },  
+			        onEnd: function () {  
+			        	var sum=enedEl.text();
+			        	if(parseInt(sum)){
+			        		enedEl.text(parseInt(sum)+1);
+			        	}else{
+			        		enedEl.text(1);
+			        	}
+			            this.destroy();  
+			        }  
+			    });
+			}
+			//选择规格
+			let shopping_price=sessionStorage.getItem('shopping_'+'<?=$goods["id"]?>');
+			let priced="<?=$goods['price']?>";//默认价格
+			$("#checkBox input[type='checkbox']").each(function(){
+				let checkData=$(this).data();
+				if(shopping_price){
+					if(checkData.id==shopping_price){
+						$(this).prop('checked',true);
+					}
+				}
+				if($(this).prop('checked')){
+					var price=parseInt($(this).val());
+					$("#price").text(price.toFixed(2));
+					spec_id=checkData.id;
+				}
+				$(this).click(function(){
+					if($(this).prop('checked')){
+						$('input[name="radio"]').prop('checked',false);
+						$(this).prop('checked',true);
+						var price=parseInt($(this).val());
+						$("#price").text(price.toFixed(2));
+						spec_id=$(this).data('id');
+					}else{
+						$("#price").text(priced);
+						spec_id="";
+					}
+				})
+			})
+			
+			
+//			mui.toast('请先选择附近维修站点！', {
+//				duration: '3000ms',
+//				type: 'div'
+//			})
+		})
+	
+	</script>
+	<script language="javascript">
+		var mySwiper = new Swiper('.swiper-container1', {
+			loop: true,
+			autoplay: {
+				disableOnInteraction: false,
+				delay: 4000, //1秒切换一次
+			},
+
+			pagination: {
+				el: '.swiper-pagination',
+				type: 'fraction',
+			}
+		});
+	</script>
+

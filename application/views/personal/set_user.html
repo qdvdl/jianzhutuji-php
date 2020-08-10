@@ -1,0 +1,261 @@
+<style type="text/css">i{font-style: normal;font-size: 0.373rem;color:#c5c5c5;}
+	.cfh-ul1 li input{width: 6rem;border: none;text-align:right;}
+</style>
+<body id="set">
+	<div id="app" v-cloak>
+	
+	<ul class="cfh-ul1">
+		<li class="li1">
+			<span>
+				<span class="iconfont icon-wode"></span> 头像
+			</span>
+			<div v-on:click="headimgcamera()">
+				<!-- <i>未上传</i> -->
+				<img v-if="headimg" class="mui-media-object" :src="headimg">
+				<img v-else class="mui-media-object" src="<?=base_url('resource/home/images/list/order-taking_03.png')?>">
+				<a></a>
+			</div>
+		</li>
+		<li class="li1">
+			<span>
+				<span class="iconfont icon-shenfenzheng"></span> 真实姓名
+			</span>
+			<div>
+				<input type="text" maxlength="6" v-model="name" placeholder="请填写" value="" />
+				<a></a>
+			</div>
+		</li>
+		<li class="li1">
+			<span>
+				<span class="iconfont icon-shoujihao"></span> 手机号
+			</span>
+			<div>
+				<input type="text" maxlength="11" v-model="tel" placeholder="请填写" value="" />
+				<a></a>
+			</div>
+		</li>
+		<li class="li1">
+			<span>
+				<span class="iconfont icon-nickname"></span> 昵称
+			</span>
+			<div>
+				<input type="text" maxlength="10" v-model="nickname" placeholder="请填写" value="" />
+				<a></a>
+			</div>
+		</li>
+		<li class="li1">
+			<span>
+				<span class="iconfont icon-xingbie"></span> 性别
+			</span>
+			<div v-on:click="sexSelect()">
+				<input type="text" v-model="sex" placeholder="请填写" value="" />
+				<a></a>
+			</div>
+		</li>
+		<li class="li1">
+			<span>
+				<span class="iconfont icon-youxiang"></span> 邮箱
+			</span>
+			<div>
+				<input type="text" maxlength="20" v-model="email"  placeholder="请填写" value="" />
+				<a></a>
+			</div>
+		</li>
+	</ul>
+	<div v-on:click="submitUserInfo" class="exit-user">
+		保存
+	</div>
+</div>
+
+<!--选择性别-->
+<div id="sex" class="mui-popover mui-popover-action mui-popover-bottom">
+	<div class="sex-div" style="background: #FFFFFF;">
+		<div class="div1 active" data-sex="男">男</div>
+		<div class="div2" data-sex="女">女</div>
+	</div>
+	<a href="#sex" style="display: inline-block;color: #4389f8; width: 100%;background: #FFFFFF;height: 44px;text-align: center;line-height: 44px;"><b>取消</b></a>
+</div>
+<!--选择头像-->
+<div id="picture" class="mui-popover mui-popover-action mui-popover-bottom">
+	<ul class="mui-table-view">
+		<li class="mui-table-view-cell" id="button1">
+			<a href="#">拍照</a>
+		</li>
+		<li class="mui-table-view-cell" id="button2">
+			<a href="#">相册选择</a>
+		</li>
+	</ul>
+	<ul class="mui-table-view">
+		<li class="mui-table-view-cell">
+			<a href="#picture"><b>取消</b></a>
+		</li>
+	</ul>
+</div>
+	
+
+<script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+<script type="text/javascript">
+	
+	var ve = new Vue({
+		el: "#app",
+		data: {
+			headimg:"<?=$user['headimg']?>",
+            upload:"",
+			name:"<?=$user['name']?>",
+			nickname:"<?=$user['nickname']?>",
+			tel:"<?=$user['tel']?>",
+			email:"<?=$user['email']?>",
+			sex:"<?=$user['sex']?>"
+		},
+		watch:{
+			name:function(){
+				this.name=this.name.replace(/[^\u4E00-\u9FA5]/g,'');
+			},
+			nickname:function(){
+				this.nickname=this.nickname.replace(/[^\u4E00-\u9FA5]/g,'');
+			},
+			tel:function(){
+				this.tel=this.tel.replace(/\D/g,'');
+			},
+			email:function(){
+				this.email=this.email.replace(/[\u4E00-\u9FA5]|[\uFE30-\uFFA0]/g,'');
+			}
+		},
+		methods: {
+			submitUserInfo:function(){
+				let pattern= /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+				let strEmail=pattern.test(this.email);
+				if(this.name===""||this.nickname===""||this.tel===""||this.email===""||this.sex===""){
+					mui.toast("请完善信息！");	
+					return;
+				}
+				if(!strEmail){
+					mui.toast("邮箱格式错误！");	
+					return;
+				}
+				let data={
+					name:this.name,
+					nickname:this.nickname,
+					tel:this.tel,
+					email:this.email,
+					sex:this.sex
+				};
+                if(this.upload!=""){
+                   data.headimg=this.upload;
+                 }
+				//提交用户信息
+				hui.loading("正在保存...");
+				mui.ajax('<?=site_url("personal/set_user")?>',{
+					data:data,
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					success:function(res){
+						hui.closeLoading(function(){
+							if(res.state){
+                              	backs();
+								//window.location.href="<?=site_url('personal/set')?>";
+							}else{
+								if(res.code===200){
+									mui.toast(res.msg);
+								}else{
+									sign_out();
+								}
+							}
+						});
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						mui.toast("网络发生错误！", {duration: '500ms',type: 'div'});
+					}
+				});
+			},
+			sexSelect:function(){
+				mui('#sex').popover('show');
+				$("input").blur();
+			},
+			headimgcamera:function(){
+				mui('#picture').popover('show');
+			}
+			
+		}
+	})
+	
+	var btn1 = document.getElementById("button1");
+	var btn2 = document.getElementById("button2");
+	var server=app_url+"/index.php/main/upload"//上传地址;
+	
+	
+	
+	
+	
+	mui.plusReady(function(){
+		btn2.addEventListener("tap",function(){
+          mui("#picture").popover('hide');
+			appendByGallery();
+		})
+		
+		btn1.addEventListener("tap",function(){
+          mui("#picture").popover('hide');
+			appendByCamera();
+		})
+		
+		// 拍照添加文件
+		function appendByCamera(){
+			plus.camera.getCamera().captureImage(function(p){
+				upload(p)
+			});	
+		}
+		
+		// 从相册添加文件
+		function appendByGallery(){
+			plus.gallery.pick(function(p){
+				upload(p)
+		    });
+		}
+		
+		function upload(p){
+			//开始上传
+            hui.loading("图片上传中...");
+            
+         
+			var task=plus.uploader.createUpload(server,
+				{method:'POST'},
+				function(t,status){ //上传完成
+              		
+                    hui.closeLoading(function(){
+                      if(status==200){
+                       	var res=JSON.parse(t.responseText);
+                      //   console.log(res);
+                       	if(res.error===0){
+                          ve.upload=res.path;
+                          $('.mui-media-object').attr('src',res.url)
+                          mui.toast(res.msg);
+                        }else{
+                          mui.toast(res.msg);
+                        }
+                        
+                      }else{
+                     	 mui.toast("上传发生了错误!");
+                      }
+                    });
+				}
+			);
+            task.addData('path', 'user/headimg');
+			task.addFile(p,{key:'user'}); 
+			task.start();
+		}
+		 
+		   
+    })
+	
+	
+	
+	//选择性别
+	mui(".sex-div").on("tap","div",function(){
+		$(".sex-div div").removeClass("active");
+		$(this).addClass("active");
+		ve.sex=$(this).data('sex');
+		mui('#sex').popover('hide');
+	})
+</script>

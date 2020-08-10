@@ -1,0 +1,226 @@
+<style type="text/css">
+	.swiper-pagination {
+		width: auto;
+		color: #ffffff;
+		padding: 0 0.133rem;
+		right: 0.28rem;
+		bottom: 0.053rem;
+		left: auto;
+		display: table;
+		border-radius: 10px;
+		background: rgba(0, 0, 0, .5);
+	}
+	.swiper-pagination span {
+		color: #ffffff;
+	}
+</style>
+
+<body id="s-station-details2">
+	<div class="swiper-container swiper-container1">
+		<div class="swiper-wrapper">
+			<?php foreach($shop['img'] as $key=>$item):?>
+			<div class="swiper-slide relative">
+				<img class="mui-media-object" src="<?=$item?>" />
+				<div class="swiper-shadow">
+					&emsp;&emsp;营业时间：<?=$shop['y_time']?>
+				</div>
+			</div>
+			<?php endforeach;?>
+		</div>
+		<div class="swiper-pagination"></div>
+	</div>
+	<div class="service-companybox">
+		<h2><?=$shop['name']?></h2>
+		<p class="second-p">
+			<span class="iconfont icon-cell"></span><span id="tel" data-tel="<?=$shop['service_tel']?>"><?=$shop['service_tel']?></span><i>&emsp;|&emsp;</i>
+			<span class="iconfont icon-dingwei2 tomap"></span><span class="tomap" id="kmNum">0km</span>
+		</p>
+		<p class="third-p tomap"><span class="iconfont icon-dingweiweizhi"></span><?=$shop['province'].$shop['city'].$shop['area'].$shop['address']?></p>
+	</div>
+	<div class="tab1">
+		<a class="active" data-index="1">维修站点介绍</a>
+		<a data-index="2">站点评价</a>
+	</div>
+	<div class="lists list1">
+		<p>
+			<?=$shop['abstract']?>
+		</p>
+	</div>
+	<?php
+			
+	?>
+	<div class="lists list2" style="display: none;">
+		<?php if($evaluate):?>
+		<div class="service-evaluation">
+			<p>服务评价：<?=number_format($evaluate['coun_level'],2)?>
+				<?=evaluate(['level'=>$evaluate['coun_level'],'label'=>'span','content'=>'','class_item'=>'icon-shoucang','class_active'=>'icon-wodeshoucang'])?>
+			</p>
+		</div>
+		<ul class="evaluation-ul">
+			<li> 
+				<img src="<?=$evaluate['headimg']?>">
+				<div>
+					<h3><?=$evaluate['nickname']?><span class="right"><?=$evaluate['time']?></span></h3>
+					<div class="marking-div2">
+						<span class="scoring">评分：</span>
+						<?=evaluate(['level'=>$evaluate['level'],'label'=>'span','content'=>'','class_item'=>'icon-shoucang','class_active'=>'icon-wodeshoucang'])?>
+					</div>
+					<p><?=$evaluate['content']?></p>
+					<ul>
+						<?php foreach($evaluate['images'] as $key=>$item):?>
+							<li><img class="mui-media-object" src="<?=$item?>" data-preview-src="" data-preview-group="1"></li>
+						<?php endforeach;?>
+					</ul>
+				</div>
+			</li>
+		</ul>	
+		<?php if($evaluate['sum']>1):?><p id="provisionlaly-no" class="provisionlaly-no">查看更多评价</p><?php else:?><p id="provisionlaly-no"></p><?php endif;?>
+		<?php else:?>
+		<div class="provitiaonlaly-noeva" style="padding-top: 3.3rem;">
+			<span class="iconfont icon-evulate"></span>
+			<p>暂无站点评价</p>
+		</div>
+		<?php endif;?>
+	</div>
+
+
+
+	<div class="outermost-layer">
+		<div class="flex-bottom">
+			<ul class="operation">
+				<li data-type="tel" data-tel="<?=$tel?>">
+					<span class="iconfont icon-kefudianhua"></span>
+					<a>客服电话</a>
+				</li>
+				<li data-type="shouc" data-id="<?=$shop['id']?>">
+					<?php if($shop['user_shouc']):?>
+						<span class="iconfont icon-wodeshoucang"></span>
+						<a id="shouc_text">已收藏</a>
+					<?php else:?>
+						<span class="iconfont icon-shoucang"></span>
+						<a id="shouc_text">收藏</a>
+					<?php endif;?>
+				</li>
+			</ul>
+			<div id="bottom-order" class="bottom-order">预约此门店</div>
+		</div>
+	</div>
+	<link rel="stylesheet" type="text/css" href="<?=base_url('resource');?>/css/img_size.css"/>
+	<script src="<?=base_url('resource');?>/js/mui.zoom.js"></script>
+	<script src="<?=base_url('resource');?>/js/mui.previewimage.js"></script>
+	<script type="text/javascript">
+		if(localStorage.getItem("distance")){
+			$("#kmNum").text(localStorage.getItem("distance")+"km");
+		}
+		
+		mui(".operation").on("tap","li",function(){
+			var data=$(this).data();
+			if(data.type=="tel"){
+				mui.confirm('', data.tel,['取消','呼叫'], function(e) {
+					if(e.index){
+						location.href="tel:"+data.tel;
+					}
+				},'div')
+			}else if(data.type=="shouc"){
+				var span=$(this).find('span');
+				//收藏
+				hui.loading();
+				mui.ajax('<?=site_url("shop/shouc")?>',{
+					data:{id:data.id},
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					success:function(res){
+						hui.closeLoading();
+						if(res.state){
+							if(res.code===1){
+								span.removeClass("icon-shoucang").addClass("icon-wodeshoucang");
+								$("#shouc_text").text(" 已收藏");
+							}
+							if(res.code===2){
+								span.removeClass("icon-wodeshoucang").addClass("icon-shoucang");
+								$("#shouc_text").text(" 收藏");
+							}
+							
+							mui.toast(res.msg, {duration: '2000ms',type: 'div'});
+						}else{
+							//去登录
+							sign_out();
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+					}
+				});
+				
+			}
+		})
+		//
+		document.getElementById("bottom-order").addEventListener("tap",function(){
+			//我要预约门店
+			hui.loading("正在预约...");
+			mui.ajax('<?=site_url("shop/yuyue")?>',{
+				data:{id:"<?=$shop['id']?>"},
+				dataType:'json',//服务器返回json格式数据
+				type:'post',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				success:function(res){
+					hui.closeLoading(function(){
+						if(res.state){
+                           backs();
+							//window.location.href="<?=site_url('goods/index')?>"
+						}else{
+							if(res.code===200){
+								//去登录
+								sign_out();
+							}else{
+								mui.toast(res.msg, {duration: '2000ms',type: 'div'});
+							}
+						}
+					});
+				},
+				error:function(xhr,type,errorThrown){
+					//异常处理；
+					mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+				}
+			});
+		})
+		//
+		mui(".tab1").on("tap","a",function(){
+			var index=$(this).data('index');
+			$(".lists").hide()
+			$(".list"+index).show();
+			$(".tab1 a").removeClass("active");
+			$(this).addClass('active');	
+		})
+		//查看更多评价
+		document.getElementById("provisionlaly-no").addEventListener("tap",function(){
+			window.location.href='<?=site_url("shop/evaluate/").$shop["id"]?>';			
+		});
+		//拨打电话电话
+		document.getElementById("tel").addEventListener("tap",function(e){
+			tel(e.target.dataset.tel);
+		})
+		//去地图
+    
+		$(".tomap").on('tap',function(){
+       		 map('shop',"<?=$shop['id']?>")
+        })
+		
+		mui.previewImage();
+	</script>
+	
+	<script>
+		var mySwiper = new Swiper('.swiper-container', {
+			loop: true,
+          	 autoplay: {
+               disableOnInteraction: false,
+               delay: 4000, //1秒切换一次
+			},
+			pagination: {
+				el: '.swiper-pagination',
+				type: 'fraction',
+			},
+		})
+	</script>

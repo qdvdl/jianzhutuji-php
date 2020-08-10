@@ -1,0 +1,245 @@
+<body class="typeofcar">
+	<div class="comodity-list-top" style="border:none;">
+		<div class="cl-searchcolumn">
+			<div class="relative">
+				<span class="magnifier2 iconfont icon-37"></span>
+				<form action=".">
+					<input type="text" style="display:none;"/>
+					<input type="search" placeholder="根据关键字模糊搜索" id="search" value=""/>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="cl-filter">
+		<div class="active">
+			<a>乘用车</a>
+		</div>
+		<div>
+			<a>商用车</a>
+		</div>
+	</div>
+<div style="overflow-y: auto;height:80vh;">
+	<div class="passenger-car">
+		<p>请您选择以下车型</p>
+		<ul>
+			<?php foreach($classify as $key=>$item):?>
+			<li>
+				<p class="initial"><span><?=$key?></span></p>
+				<ul class="vehicle-band">
+					<?php foreach($classify[$key] as $k=>$s):?>
+						<li class="c_name" data-name="<?=$s['name']?>">
+							<a href="<?=site_url('classify/classGoods/').$s['id']?>">
+								<img class="mui-media-object" src="<?=$s['icon']?>" />
+								<?=$s['name']?>
+							</a>
+						</li>
+					<?php endforeach;?>
+				</ul>
+			</li>
+			<?php endforeach;?>
+		</ul>
+	</div>
+	<div id="mescroll" class="mescroll" style="height: 80vh;display: none;">
+		<ul class="mui-table-view mui-grid-view Purchase-list" id="app" v-cloak>
+		   <li class="mui-table-view-cell mui-media mui-col-xs-6" v-for="(goods,index) in list" v-on:click="links(goods.id)">
+		       <a href="javascript:;">
+		       	<div class="border-box">
+		           <img class="mui-media-object" :src="goods.img">
+		           <div class="mui-media-body comodity">{{goods.name}}</div>
+		       	<div class="mui-media-body amounts">￥  {{goods.price}}</div>
+		       	<div class="mui-media-body sold">已售： {{goods.sales}}单</div>
+		       	</div>
+		       </a>
+		   </li>
+		</ul>
+		<div id="data-null"></div>
+	</div>
+	
+</div>
+<link rel="stylesheet" href="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.css">
+<script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+<script src="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.js" charset="utf-8"></script>
+
+<script>
+	var ve = new Vue({
+		el: "#app",
+		data: {
+			list: [],
+		},
+		methods: {
+			links: function(id) {
+				window.location.href="<?=site_url('goods/details/')?>"+id;
+			}
+		}
+	})
+	
+	var tab_index=1;
+	$('.cl-filter div').click(function(){
+		$('.cl-filter div').removeClass("active");
+		$(this).addClass('active');
+		search_classify('');
+		
+		if($('.cl-filter div:first-child').hasClass('active')){
+			$('.mescroll').hide();
+			$('.passenger-car').show();
+			tab_index=1;
+			$("#search").val('');
+		}else{
+			$("#search").val(search_name);
+			tab_index=2;
+			$('.mescroll').show();
+			$('.passenger-car').hide();
+			
+		}
+	})
+	//监听搜索框进行搜索
+	$("#search").keyup(function(){
+		var thisE=this;
+		var v=$(thisE).val();
+		if(tab_index==1){
+			search_classify(v);	
+		}else{
+			if(v==''){
+				search_fun(v);	
+			}
+		}
+	})
+	//搜索车型触发搜索
+	function search_classify(v){
+		if(v!=""){
+			$(".c_name").each(function(){
+				var data=$(this).data();
+				if(v==data.name){
+					$(".c_name").hide();
+					$(".c_name").parents('li').hide();
+					$(this).show();	
+					$(this).parents('li').show();
+				}
+			})
+		}else{
+			$(".c_name").show();
+			$(".c_name").parents('li').show();
+		}
+	}
+	//搜索按钮触发搜索
+	$('#search').bind('search', function() {
+		var search_text=$(this).val();
+		if(search_text!=""){
+			if(tab_index==2){
+				search_fun(search_text);
+			}
+		}else{
+			
+			mui.toast('请输入搜索关键词',{ duration:'short', type:'div' });
+		}
+		$(this).blur();
+	});
+	//数据刷新
+	var mescroll = new MeScroll("mescroll", {
+		down: {
+			auto: false
+		},
+		up: {
+			callback: upCallback,
+			isBounce: false, //此处禁止ios回弹,解析(务必认真阅读,特别是最后一点): http://www.mescroll.com/qa.html#q10
+			page: {
+				num: 0, //当前页数
+				size: 10 //每页显示条数
+			},
+			htmlNodata: '<p class="upwarp-nodata">--没有更多了--</p>',
+			noMoreSize: 10, //数据大于多少条时显示htmlNodata
+			toTop: {
+				//回到顶部
+				src: "http://www.mescroll.com/demo/res/img/mescroll-totop.png", //回到顶部图片样子
+				offset: 10 //滚动到多少个PX时出现回到顶部
+			},
+			empty: {
+				warpId: "data-null",
+				//icon:"http://www.mescroll.com/demo/dotJump/option/mescroll-empty.png",
+				tip: '<div class="nolist-div" style="background:#fff;"><span class="iconfont icon-zanwuxinxi"></span><p>暂无此商品</p></div>'
+			}
+		}
+	})
+	//上拉加载回调函数
+	var index = 0,search_name = "";
+	function upCallback(page) {
+		data_ajax({
+			page: page.num,
+			limit: page.size,
+			name: search_name,
+			types:"1"
+		}, function(pageTool, data) {
+			var len = data.length;
+			if(page.num == 1) {
+				ve.list = [];
+			}
+			mescroll.endByPage(len, pageTool);
+			for(var i = 0; i < data.length; i++) {
+				ve.list.push(data[i]);
+			}
+		})
+	}
+	//模拟服务器端数据
+	function data_ajax(data, succEvent) {
+		setTimeout(function() {
+			//ajax获取数据
+			$.ajax({
+				url: "<?=site_url('goods/get_goods')?>",
+				data: data,
+				dataType: "json",
+				type: "get",
+				timeout:10000,
+				success: function(res) {
+					if(res.state === "success") {
+						succEvent(res.pageTool, res.data);
+					}
+				},
+				error:function(data){
+					//异常处理；
+					mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+					mescroll.endErr();
+				}
+			});
+		}, 500)
+	}
+	//执行搜索
+	function search_fun(name){
+		search_name = name;
+		ve.list = [];
+		mescroll.resetUpScroll();
+	}
+</script>
+ 	<div class="bottom bottom-line">
+			<ul>
+				<li>
+					<a href="<?=site_url()?>">
+						<span class="iconfont icon-oohouse"></span>
+						<i>首页</i>
+					</a>
+				</li>
+				<li  class="active">
+					<a href="<?=site_url('classify/index')?>">
+						<span class="iconfont icon-iconfontzhizuobiaozhun023145"></span>
+						<i>商品</i>
+					</a>
+				</li>
+				<li>
+					<a href="<?=site_url('shop/index')?>">
+					<span class="iconfont icon-qicheweixiu"></span>
+					<i>维修</i>
+					</a>
+				</li>
+				<li>
+					<a href="<?=site_url('testing/index')?>">
+					<span class="iconfont icon-anquanjiance"></span>
+					<i>检测</i>
+					</a>
+				</li>
+				<li>
+					<a href="<?=site_url('personal/index')?>">
+					<span class="iconfont icon-wode"></span>
+					<i>我的</i>
+					</a>
+				</li>
+			</ul>
+		</div>

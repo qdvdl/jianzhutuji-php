@@ -1,0 +1,23 @@
+<body id="website-news">
+	<h3 class="news-title"><?=$data['title']?></h3>
+	<div class="content edit_details_text"> 
+		<p class="title">添加时间<?=$data['see']?>：<?=$data['issuer_time']?></p>
+		<p> <?=$data['content']?></p>
+	</div>
+	
+<script>
+  var see="<?=$data['see']?>";
+  if(see=="2"){
+      let user_address=localStorage.getItem('user_address'); 
+      if(user_address){
+        user_address=JSON.parse(user_address);
+        if(parseInt(user_address.userMail)-1<=0){
+          user_address.userMail=0;
+        }else{
+          user_address.userMail=parseInt(user_address.userMail)-1;
+        } 
+        localStorage.setItem('user_address',JSON.stringify(user_address));
+      } 
+  }
+ 
+</script>

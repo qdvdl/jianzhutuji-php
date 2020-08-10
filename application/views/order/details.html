@@ -1,0 +1,177 @@
+<body id="my-guarantor" class="order-details">
+    <div class="index-secondcontent list1">
+        <ul class="column-content index-firstcontent">
+            <li>
+                <p class="order-number relative">
+                    订单编号：<?=$order['number']?>
+                    
+                    <span class="right">
+                        <?php 
+                            if($order['state']==="1"){
+                                if($order['states']==='2')echo "未发货"; 
+                                if($order['states']==='3')echo "未出库"; 
+                                if($order['states']==='4')echo "已发货"; 
+                                if($order['states']==='5')echo "待安装"; 
+                                if($order['states']==='6')echo "已安装"; 
+                                if($order['states']==='10')echo "已完成"; 
+                            }else if($order['state']==="2"){echo "已取消";}else if($order['state']==="4"){
+                                if($order['states']==='7') echo "退货中";
+                                if($order['states']==='8'&& $order['refund_state']==="1")echo "已退款"; 
+                                if($order['states']==='8'&& $order['refund_state']==="2")echo "退款中"; 
+                            }
+                        ?>
+                    </span>
+                  
+                    <span class="border"></span>
+                </p>
+                <div style="width: 100%;" class="column-title">
+                    <h3>商品</h3>
+                    <a>已包邮</a>
+                </div>
+                <div class="img">
+                    <img class="mui-media-object" src="<?=$order['goods_img']?>">
+                </div>
+                <div class="relative">
+                    <p class="name"><?=$order['number']?></p>
+                    <p class="cell">试用排量：<?=$order['goods_cggs_name']?></p>
+                    <p class="site">适用车型：<?=$order['goods_ct_name']?> - <?=$order['goods_cs_name']?> - <?=$order['goods_cgs_name']?></p>
+                </div>
+                <div style="width:100%;" class="column-title column-title2">
+                    <h3>购买数量：<?=$order['order_num']?>件</h3>
+                    <a>专车件</a>
+                </div>
+            </li>
+        </ul>
+        <div class="index-firstcontent">
+            <div class="column-title column-title3">
+                <h3>维修站点</h3>
+            </div>
+            <ul class="mui-table-view">
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right">
+                        <?=$order['shop_name']?>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="index-firstcontent">
+            <div class="column-title column-title3">
+                <h3>车主信息</h3>
+            </div>
+            <p class="order-number relative">
+                车主名称<span class="right"><?=$order['car_user']?></span>
+                <span class="border"></span>
+            </p>
+            <p class="order-number relative">
+                车主电话<span class="right"><?=$order['car_user_tel']?></span>
+                <span class="border"></span>
+            </p>
+            <p class="order-number relative weight-bold">
+                请填写车牌号码<span class="right"><?=$order['car_brand']?></span>
+                <span class="border"></span>
+            </p>
+        </div>
+        <div class="index-firstcontent">
+            <div class="column-title column-title4">
+                <h3>订单备注</h3>
+            </div>
+            <div class="content">
+                    <?=$order['marks']?>
+            </div>
+            <div class="order-number">
+                订单编号：<?=$order['order_code']?><br>
+                订单时间：<?=$order['creat_time']?><br>
+                支付状态：<?php if($order['state']==='1')echo "已支付";if($order['state']==='2')echo "已取消";
+                        if($order['state']==="4"){
+                            if($order['states']==='7') echo "退货中";
+                            if($order['states']==='8'&& $order['refund_state']==="1")echo "已退款"; 
+                            if($order['states']==='8'&& $order['refund_state']==="2")echo "退款中"; 
+                        }
+                ?>
+            </div>
+            <p class="relative order-number noborder custom-p">
+                商品总价<span class="right"><?=number_format($order['order_num']*$order['goods_price'],2)?></span>
+            </p>
+            <p class="order-number relative noborder custom-p">
+                安装费<span class="right"><?=$order['service_money']?></span>
+            </p>
+            <!-- <p class="order-number relative custom-p">
+                优惠<span class="right">-<?=$order['order_code']?></span>
+            </p> -->
+            <p class="order-number relative noborder">
+                订单完成后可获得积分<span class="right"><?=number_format((($order['goods_price']*$order['order_num'])+$order['service_money'])/$integral['m_money'])?></span>
+            </p>
+            <div class="paid">实付：<span>¥ <?=number_format(($order['goods_price']*$order['order_num'])+$order['service_money'],2)?></span></div>
+        </div>
+    </div>
+    <div style="height: 2.186rem;"></div>
+    <?php if($order['states']==='6'):?>
+        <?php if($order['install_state']==="3"):?> 
+            <div class="sumbit" onclick="order_set_state('install_state_5')">确认已安装</div>
+        <?php else:?>
+ 			<?php if(!$order['estate']):?>
+            	<div class="sumbit" onclick="refund('evaluation')">去评价</div>
+  			<?php endif;?>
+        <?php endif;?>
+    <?php endif;?>
+    <?php if($order['state']==='1' && $order['states']==="3"):?>
+        <div class="sumbit" onclick="refund('show')">申请退货</div>
+    <?php endif;?>
+    <script>
+        function refund(p){
+            if(p==='state_7'){
+                let refund_text=$("#refund_text").val();
+                if(refund_text!==""&& refund_text.length>=10){
+                    order_set_state(p);
+                }else{
+                    mui.toast("请填写退款原因不能小于10个字符！");  
+                }
+            }else if(p==='evaluation'){
+                window.location.href="<?=site_url('order/evaluation/').$order['number']?>";
+            }else{
+                mui('#picture').popover(p);
+            }
+        }
+   
+        function order_set_state(s){
+            refund('hide');
+            hui.loading("正在处理...");
+            mui.ajax('<?=site_url("order/order_state")?>',{
+                data:{number:"<?=$order['number']?>",states:s,"refund_text":$("#refund_text").val()},
+                dataType:'json',//服务器返回json格式数据
+                type:'post',//HTTP请求类型
+                timeout:10000,//超时时间设置为10秒；
+                success:function(res){
+                    hui.closeLoading(function(){
+                        if(res.state){
+                            mui.toast(res.msg);
+                            setTimeout(()=>{
+                                window.location.reload();
+                            },500)
+                        }else{
+                            mui.toast(res.msg);
+                        }	
+					});
+                },
+                error:function(xhr,type,errorThrown){
+                    //异常处理；
+                    mui.toast("网络发生错误！", {duration: '500ms',type: 'div'});
+                }
+            });
+        }
+    </script>
+    <div id="picture" class="mui-popover mui-popover-action mui-popover-bottom">
+        <div style="position:absolute;left: 0;bottom:50%;width:100vw;height:100vh;">
+            <div class="index-layer fill-reason" style="position:absolute;">
+                <div class="fill-reason-title">请填写退款原因</div>
+                <div>
+                    <textarea maxlength="150" placeholder="请填写退款原因限150字符" cols="" id="refund_text"></textarea>
+                </div>
+                <div class="cancelorsure">
+                    <a onclick="refund('hide')">取消</a>
+                    <a onclick="refund('state_7')">保存</a>
+                </div>
+            </div>
+        </div>
+    </div>
+   

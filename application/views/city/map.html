@@ -1,0 +1,115 @@
+<div id="allmap" style="height:100vh;"></div>
+ <script type="text/javascript" src="<?=base_url('resource/js/');?>plusGeolocation.js"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=5bwuet8jTteg58uoKb6AS3cdn2fpKSEA"></script>
+<script type="text/javascript">
+  
+  
+    
+  	
+    
+  
+     //需要定位获取当前坐标当前坐标
+    function user_set(o){
+      localStorage.setItem('user_address',JSON.stringify(o));
+	  var user_map=JSON.parse(localStorage.getItem('user_map'));
+      console.log(user_map)
+   console.log(o)
+        // 百度地图API功能
+    /*
+        
+    */
+        hui.loading("正在获取地图信息...");
+        mui.ajax('<?=site_url("city/data")?>',{
+          data:{id:user_map.id,type:user_map.type},
+          dataType:'json',//服务器返回json格式数据
+          type:'get',//HTTP请求类型
+          timeout:10000,//超时时间设置为10秒；
+          success:function(res){
+            hui.closeLoading(function(){
+              if(res.code==200){
+                 show_map(o.lng,o.lat,res.data.lng,res.data.lat)
+               }else{
+                  mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'}); 
+               }
+            });
+          },
+          error:function(xhr,type,errorThrown){
+            //异常处理；
+            mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+          }
+        });
+      
+      
+      
+      
+      
+    }
+  	
+    function show_map(slng,slat,lng,lat){
+      console.log(slng,slat,lng,lat);
+          var map = new BMap.Map("allmap");
+          var p1 = new BMap.Point(slng,slat);//起点
+          var p2 = new BMap.Point(lng,lat);//终点
+          var driving = new BMap.DrivingRoute(map, {renderOptions:{map: map, autoViewport: true}});
+          driving.search(p1, p2);
+    }
+  
+  
+    mui.plusReady(function(){
+      var user_address=false;
+      //user_set(JSON.parse(user_address));
+      //var a = {a:1,b:2}
+      if(user_address){
+        user_set(JSON.parse(user_address));
+      }else{
+        navigator.geolocation.getCurrentPosition(function(p) {
+          hui.loading("定位中...");
+          if(p.coords.longitude=="5e-324"){
+                         mui.confirm("请在授权应用中,开启定位权限！","",['已开启'],function(o){
+                      		 location.reload()
+                  		},'div')
+                    }
+          var addressinfo=p.address;
+          addressinfo.lng=p.coords.longitude;
+          addressinfo.lat=p.coords.latitude;
+          setLngLat(addressinfo);
+
+        }, function(err) {
+          // alert(err.message);
+          mui.confirm("定位失败,定位权限未开启！","",['已开启'],function(o){
+
+            location.reload()
+          },'div')
+
+        })
+      }
+    })
+
+    //地图坐标转换
+
+
+
+    function setLngLat(p){
+
+      //转换的坐标
+      var x = p.lng;
+      var y = p.lat;
+
+      var ggPoint = new BMap.Point(x,y);
+      var convertor = new BMap.Convertor();
+
+      var pointArr = [];
+      pointArr.push(ggPoint);
+      convertor.translate(pointArr, 1, 5,function(data){
+        if(data.status===0){
+          p.lng=data.points[0].lng;
+          p.lat=data.points[0].lat;
+          user_set(p);
+        }else{
+          //转换失败
+          user_set(p);
+        }
+      })
+    }
+  
+</script>

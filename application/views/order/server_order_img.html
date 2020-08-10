@@ -1,0 +1,93 @@
+<body id="look-guarantor-details">
+        <style type="text/css">.ser-sta-description div img{height:100%;width:auto;}</style>
+        <?php if($detection):?>    
+        <div class="index-firstcontent">
+                <div class="column-title">
+                    <h3>产品信息</h3>
+                </div>
+                <ul class="cfh-ul1" style="font-size:0.32rem;">
+                    <li class="li1">
+                        <span>车架号 </span>
+                        <div><?=$detection['fnumber']?></div>
+                    </li>
+                    <li class="li1">
+                        <span>车牌号</span>
+                        <div><?=$detection['plate']?></div>
+                    </li>
+                    <li class="li1">
+                        <span>产品编码</span>
+                        <div><?=$detection['number']?></div>
+                    </li>
+                    <li class="li1">
+                        <span>车牌类型</span>
+                        <div><?=$detection['plate_type']?></div>
+                    </li>
+                    <li class="li1">
+                        <span>安装地点</span>
+                        <div><?=$detection['address']?></div>
+                    </li>
+                    <li class="li1">
+                        <span>安装时间</span>
+                        <div><?=$detection['idate']?></div>
+                    </li>
+                </ul>
+            </div><?php endif;?>
+              <div class="index-firstcontent">
+                  <div class="column-title">
+                      <h3>查看更换登记表1231</h3>
+                  </div>
+                  <div class="ser-sta-description bordernone overflow" id="order_ok_table_img">
+                      <?php foreach($order['order_ok_table_img'] as $key=>$item):?>
+                      <div class="relative">
+                         <!-- <span>点击放大<i class="iconfont icon-fangda"></i></span>-->
+                         <img data-preview-src="" data-preview-group="1" class="logon-table mui-media-object" src="<?=$item?>"> 
+                      </div>
+                      <?php endforeach;?>
+                  </div>
+              </div>
+              <div class="index-firstcontent">
+                  <div class="column-title">
+                      <h3>查看安装图</h3>
+                  </div>
+                  <div class="ser-sta-description bordernone overflow" id="order_ok_img">
+                      <?php foreach($order['order_ok_img'] as $key=>$item):?>
+                      <div class="relative">
+                          <!-- <span>点击放大<i class="iconfont icon-fangda"></i></span>-->
+                          <img data-preview-src="" data-preview-group="2" class="logon-table mui-media-object" src="<?=$item?>"></img>
+                      </div>
+                      <?php endforeach;?>
+                  </div>
+              </div>
+              <?php if($order['install_state']==="3"):?> 
+                  <div class="sumbit" onclick="order_set_state('install_state_5')">确认已安装</div>
+              <?php endif;?>
+              <link rel="stylesheet" type="text/css" href="<?=base_url('resource');?>/css/img_size.css"/>
+          <script src="<?=base_url('resource');?>/js/mui.zoom.js"></script>
+          <script src="<?=base_url('resource');?>/js/mui.previewimage.js"></script>
+          <script>mui.previewImage();
+              
+               function order_set_state(s){
+                  mui.ajax('<?=site_url("order/order_state")?>',{
+                      data:{number:"<?=$order['number']?>",states:s},
+                      dataType:'json',//服务器返回json格式数据
+                      type:'post',//HTTP请求类型
+                      timeout:10000,//超时时间设置为10秒；
+                      success:function(res){
+                          if(res.state){
+                              mui.toast(res.msg);
+                              setTimeout(()=>{
+                                  window.location.reload();
+                              },500)
+                          }else{
+                              mui.toast(res.msg);
+                          }
+                      },
+                      error:function(xhr,type,errorThrown){
+                          //异常处理；
+                          mui.toast("网络发生错误！", {duration: '500ms',type: 'div'});
+                      }
+                  });
+              }
+          </script>
+            
+           

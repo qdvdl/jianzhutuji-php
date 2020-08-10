@@ -1,0 +1,257 @@
+<body class="vehicle-classfication confirm-order" id="my-guarantor">
+	<div id="app" v-cloak>
+		<div class="index-secondcontent list1">
+			<div v-for="goods in list">
+				<ul class="column-content">
+					<li>
+						<div class="img">
+							<img class="mui-media-object" :src="goods.img">
+						</div>
+						<div class="relative">
+							<p class="name">{{goods.goods_name}}</p>
+							<p class="cell">试用排量：{{goods.cggs_name}} </p>
+							<p class="site">适用车型：{{goods.ct_name}} - {{goods.cs_name}} - {{goods.cgs_name}}</p>
+							<span class="span1" v-if="goods.oe_number">OE号：{{goods.oe_number}}</span>
+						</div>
+					</li>
+				</ul>
+				<div class="purchase-number relative">
+					<span>购买数量：× {{goods.order_num}}</span>
+					<a class="vehicle-part right" href="javascript:;" v-if="goods.g_type=='1'">通用包·圆</a>
+					<a class="vehicle-part right" href="javascript:;" v-if="goods.g_type=='2'">通用包·扁</a>
+					<a class="vehicle-part right" href="javascript:;" v-if="goods.g_type=='3'">专车件</a>
+				</div>
+				<ul class="cfh-ul1 ul1">
+					<li class="li1">
+						<span>维修站点</span>
+						<div><span>{{goods.shop_name}}</span></div>
+					</li>
+					<li class="li1" v-if="goods.op_type">
+						<span>优惠</span>
+						<div v-if="goods.op_type=='1'"><span style="color: #ed233b;">满{{goods.limit_money}}元减{{goods.op_money}}元券</span></div>
+						<div v-if="goods.op_type=='2'"><span style="color: #ed233b;">打{{(goods.op_money/100).toFixed(2)}}折</span></div>
+					</li>
+				</ul>
+			</div>
+			<ul class="cfh-ul1 ul1">
+				<li class="li1">
+					<span>车主信息</span>
+					<div>{{arrdef.text}}</div>
+					<div>
+						<div style="color:#696969;float:right;" v-on:click="selectAdress($event,'add')">去添加<a></a></div>
+						<div v-if="address.length>0" style="color:#696969;float:right;margin-right: 11px" v-on:click="selectAdress($event,'s')">选择地址</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div class="index-firstcontent">
+			<div class="column-title">
+				<h3>订单备注</h3>
+			</div>
+			<textarea v-model="marks" maxlength="150" placeholder="限制输入150个字符"></textarea>
+		</div>
+		<div class="index-firstcontent">
+			<div class="column-title">
+				<h3>支付方式</h3>
+			</div>
+			<ul class="mui-table-view mui-table-view-radio">
+				<li class="mui-table-view-cell mui-selected overflow" v-on:click="payType('weixin')">
+					<span style="color: #46bb36;" class="left iconfont icon-weixinzhifu"></span>
+					<a class="mui-navigate-right">微信支付</a>
+				</li>
+				<li class="mui-table-view-cell overflow" v-on:click="payType('alipay')">
+					<span style="color: #1296db;" class="left iconfont icon-zhifubaozhifu"></span>
+					<a class="mui-navigate-right">支付宝支付</a>
+				</li>
+			</ul>
+			<ul class="cfh-ul1 ul2">
+				<li class="li1">
+					<span> 
+				商品总价
+			</span>
+					<div>
+						<!-- <i>未的上传</i> -->
+						<span>{{sum_money}}</span>
+					</div>
+				</li>
+				<li class="li1">
+					<span>
+				安装费
+			</span>
+					<div>
+						<!-- <i>未的上传</i> -->
+						<span>{{server_price_sum}}</span>
+					</div>
+				</li>
+				<li class="li1">
+					<span>优惠</span>
+					<div><span>-{{operate_sum}}</span></div>
+				</li>
+			</ul>
+		</div>
+		<ul class="cfh-ul1 ul2">
+			<li class="li1">
+				<span>
+			订单完成后可获得积分
+		</span>
+				<div>
+					<span>{{parseInt(pay_money_sum/m_money)}}</span>
+				</div>
+			</li>
+		</ul>
+		<div class="l-agreement mui-input-row mui-radio mui-left">
+			<input name="radio" type="radio" v-model="xieyi" value="ok">
+			<div>
+				<label>我已阅读并同意<a href="<?=site_url('article/agreement/156')?>">《购买协议》</a></label>
+			</div>
+		</div>
+		<div class="outermost-layer mycart">
+			<div class="flex-bottom">
+				<ul>
+					<li>
+						<a>实付：<span>￥{{pay_money_sum}}</span></a>
+					</li>
+				</ul>
+				<div class="bottom-order" v-on:click="payment()">确认支付</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+    <script type="text/javascript" src="<?=base_url('resource');?>/js/mui.picker.all.js"></script>
+    <link rel="stylesheet" href="<?=base_url('resource');?>/css/mui.picker.all.css">
+	<script type="text/javascript">
+        
+        mui.init();
+		mui(function() {
+
+			let ve = new Vue({
+				el: "#app",
+				data: {
+					list: [],
+					sum_money:"0.00",
+					operate_sum:"0.00",
+					server_price_sum:"0.00",
+					pay_money_sum:"0.00",
+					address:<?=$address?>,
+					arrdef:<?=$arrdef?>,
+					marks:"",
+					paytype:"weixin",
+					xieyi:"",
+					m_money:"<?=$integral['m_money']?>"
+				},
+				watch:{
+					list:function(){
+						this.$nextTick(function(){
+							this.list.map((elt)=>{
+								//console.log(elt.goods_price,elt.order_num,elt.operate_id);
+							})
+						})
+					},
+				},
+				methods: {
+					links: function(id) {
+						window.location.href = "<?=site_url('goods/details/')?>" + id;
+					},
+					payment:function(){
+						if(this.xieyi==="ok"){
+						
+							let data=this.arrdef;
+							data.paytype=this.paytype;//支付类型
+							data.marks=this.marks;//备注
+							data.order_code="<?=$order_code?>";
+							data.operate_sum=this.operate_sum; //优惠金额
+							data.server_price_sum=this.server_price_sum; //安装费用
+							
+							if(data.car_brand!==""){
+								hui.loading("等待支付...");
+								mui.ajax('<?=site_url("order/payorder")?>',{
+									data:data,
+									dataType:'json',//服务器返回json格式数据
+									type:'post',//HTTP请求类型
+									timeout:10000,//超时时间设置为10秒；
+									success:function(res){
+										hui.closeLoading(function(){
+											if(res.state){
+												//window.location.href="<?=site_url('payment/index/?order_id=').$order_code?>";
+                                               window.location.href="<?=site_url('payment/app_pay/').$order_code?>";
+											}else{
+												if(res.code===101){
+													sign_out();
+												}else{
+													mui.toast(res.msg);
+												}
+											}
+										});
+									},
+									error:function(xhr,type,errorThrown){
+										//异常处理；
+										mui.toast("网络发生错误！", {duration: '500ms',type: 'div'});
+									}
+								});
+
+							}else{
+								mui.toast("请选择车主信息！");//选选择车主信息
+							}
+						}else{
+							mui.toast("请勾选协议！");
+						}
+					},
+					selectAdress:function(e,t){
+						let thisE=this;
+						if(t==="s"){
+							let picker = new mui.PopPicker({layer:1}); 
+							picker.setData(thisE.address); 
+							picker.show(function(s){
+								thisE.arrdef={text:s[0].text,value:s[0].value,"car_brand":s[0].car_brand,"car_user_tel":s[0].car_user_tel};
+								picker.dispose();
+							});
+						}else{
+                           
+							window.location.href = "<?=site_url('personal/addAddress')?>";
+						}
+					},
+					payType:function(pay){
+						this.paytype=pay;
+					}
+				}
+			});
+			//获取订单数据
+			let order_code = "<?=$order_code?>";
+			hui.loading("加载中...");
+			$.ajax({
+				url: "<?=site_url('order/index')?>",
+				data: {
+					index: "1",
+					order_code: order_code
+				},
+				dataType: "json",
+				type: "get",
+				timeout: 10000,
+				success: function(res) {
+					hui.closeLoading(function(){
+						if(res.code === 200) {
+							
+							ve.sum_money=res.sum_money;
+							ve.operate_sum=res.operate_sum;
+							ve.server_price_sum=res.server_price_sum;
+							ve.pay_money_sum=res.pay_money_sum;
+							res.order.map((elt) => {
+								ve.list.push(elt);
+							})
+						} else {
+							mui.toast("网络发生错误！");
+						}
+					});
+				},
+				error: function(data) {
+					//异常处理；
+					mui.toast("网络发生错误！", {
+						duration: '500ms',
+						type: 'div'
+					});
+				}
+			});
+
+		})
+	</script>

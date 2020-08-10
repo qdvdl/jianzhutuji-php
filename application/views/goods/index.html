@@ -1,0 +1,186 @@
+<body id="comodity-list">
+	<div class="cl-searchcolumn" style="border: none;">
+		<div class="relative">
+			<span class="magnifier2 iconfont icon-37"></span>
+			<form action=".">
+				<input type="text" style="display:none;"/>
+				<input type="search" placeholder="根据关键字模糊搜索对应商品" id="search_btn" value=""/>
+			</form>
+		</div>
+	</div>
+	<div id="app" v-cloak>
+		<div class="cl-filter">
+			<div class="active" v-on:click="onTabActive('time',0)">
+				<a>最新</a>
+			</div>
+			<div v-on:click="onTabActive('price',1)">
+				<a>价格</a>
+				<span class="iconfont icon-xiaosanjiaoup"></span>
+				<span class="iconfont icon-xiaosanjiaodown"></span>
+			</div>
+			<div v-on:click="onTabActive('sales',2)">
+				<a>销量</a>
+				<span class="iconfont icon-xiaosanjiaoup"></span>
+				<span class="iconfont icon-xiaosanjiaodown"></span>
+			</div>
+		</div>
+		<div id="mescroll" class="mescroll" style="height: 88vh;">
+			<ul class="mui-table-view mui-grid-view Purchase-list">
+				<li class="mui-table-view-cell mui-media mui-col-xs-6" v-for="(goods,index) in list">
+					<a>
+						<div class="border-box" v-on:click="links(goods.id)">
+							<div class="img-box">
+								<img class="mui-media-object" :src="goods.img">
+							</div>
+							<div class="mui-media-body comodity">{{goods.name}}</div>
+							<div class="mui-media-body amounts">¥  {{goods.price}}</div>
+							<div class="mui-media-body sold">已售：{{goods.sales}}单</div>
+						</div>
+					</a>
+				</li>
+			</ul>
+			<div id="data-null"></div>
+		</div>
+	
+	</div>
+	<link rel="stylesheet" href="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.css">
+	<script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+	<script type="text/javascript" src="<?=base_url('resource/home');?>/js/public.js"></script>
+	<script src="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.js" charset="utf-8"></script>
+
+	<script type="text/javascript">
+		var ve = new Vue({
+			el: "#app",
+			data: {
+				list: [],
+				sort: 'time',
+				price_sort: true,
+				sales_sort: true
+			},
+			methods: {
+				links: function(id) {
+					window.location.href="<?=site_url('goods/details/')?>"+id;
+				},
+				onTabActive: function(sort, index) {
+					$(".cl-filter div").removeClass();
+					$(".cl-filter div").eq(index).addClass("active");
+					var span = $(".cl-filter div").eq(index).find('span');
+					$('.iconfont').removeClass('active');
+					this.sort = sort;
+					if(sort == "price") {
+						this.price_sort = sort_func(this.price_sort, span, sort);
+						this.sales_sort = true;
+					}
+					if(sort == "sales") {
+						this.sales_sort = sort_func(this.sales_sort, span, sort);
+						this.price_sort = true;
+					}
+					search_fun(search_name);
+				}
+			}
+		})
+		//排序
+		function sort_func(off, span, sort) {
+			if(off) {
+				span.eq(0).addClass('active');
+				ve.sort = sort + "_asc";
+			} else {
+				span.eq(1).addClass('active');
+				ve.sort = sort + "_desc";
+			}
+			off = !off;
+			return off;
+		}
+
+		//存放历史搜索记录		
+		var serach_arr = [];
+		//获取历史搜索记录
+		if(localStorage.getItem("search_arr")) {
+			serach_arr = JSON.parse(localStorage.getItem("search_arr"));
+			ve.serach = serach_arr;
+		}
+		//记录搜索记录
+		$('#search_btn').bind('search', function() {
+			var search_text = $(this).val();
+			//搜索后记录搜索日志
+			if(search_text != "") {
+				//按照最新事件排序
+				search_fun(search_text);
+			}
+			$(this).blur();
+		});
+		//数据刷新
+		var mescroll = new MeScroll("mescroll", {
+			down: {
+				auto: false
+			},
+			up: {
+				callback: upCallback,
+				isBounce: false, //此处禁止ios回弹,解析(务必认真阅读,特别是最后一点): http://www.mescroll.com/qa.html#q10
+				page: {
+					num: 0, //当前页数
+					size: 10 //每页显示条数
+				},
+				htmlNodata: '<p class="upwarp-nodata">--没有更多了--</p>',
+				noMoreSize: 10, //数据大于多少条时显示htmlNodata
+				toTop: {
+					//回到顶部
+					src: "http://www.mescroll.com/demo/res/img/mescroll-totop.png", //回到顶部图片样子
+					offset: 10 //滚动到多少个PX时出现回到顶部
+				},
+				empty: {
+					warpId: "data-null",
+					//icon:"http://www.mescroll.com/demo/dotJump/option/mescroll-empty.png",
+					tip: '<div class="nolist-div" style="background:#fff;"><span class="iconfont icon-zanwuxinxi"></span><p>暂无此商品</p></div>'
+				}
+			}
+		})
+		//上拉加载回调函数
+		var index = 0,search_name = "";
+		function upCallback(page) {
+			data_ajax({
+				page: page.num,
+				limit: page.size,
+				name: search_name,
+				sort: ve.sort
+			}, function(pageTool, data) {
+				var len = data.length;
+				if(page.num == 1) {
+					ve.list = [];
+				}
+				mescroll.endByPage(len, pageTool);
+				for(var i = 0; i < data.length; i++) {
+					ve.list.push(data[i]);
+				}
+			})
+		}
+		//服务器端数据
+		function data_ajax(data, succEvent) {
+			setTimeout(function() {
+				//ajax获取数据
+				$.ajax({
+					url: "<?=site_url('goods/get_goods')?>",
+					data: data,
+					dataType: "json",
+					type: "get",
+					timeout:10000,
+					success: function(res) {
+						if(res.state === "success") {
+							succEvent(res.pageTool, res.data);
+						}
+					},error:function(data){
+						//异常处理；
+						mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+						mescroll.endErr();
+					}
+				});
+			}, 500)
+		}
+		//执行搜索
+		function search_fun(name) {
+			$("#search_show").show();
+			search_name = name;
+			ve.list = [];
+			mescroll.resetUpScroll();
+		}
+	</script>

@@ -1,0 +1,14 @@
+<body>
+
+<script>
+
+  (function() {
+     localStorage.setItem('pay_state','3');
+    setTimeout(function(){
+		location.href="<?=site_url('payment/pay/').$order_code?>";
+	},500)
+     
+    //location.href ="<?=site_url('payment/index/?order_id=').$order_code?>";
+  })();
+		
+</script>

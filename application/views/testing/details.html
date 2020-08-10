@@ -1,0 +1,116 @@
+<style type="text/css">
+	.swiper-pagination{
+		width: auto;
+		color: #ffffff;
+		padding: 0 0.133rem;
+		right: 0.28rem;
+		bottom:0.053rem;
+		left: auto;
+		display: table;
+		border-radius: 10px;
+		background:rgba(0,0,0,.5);
+		
+	}
+	.swiper-pagination span{
+		color: #ffffff;
+
+	}
+</style>
+	<body class="testing-station-details">
+		<div class="swiper-container swiper-container1">
+			<div class="swiper-wrapper">
+				<?php foreach($testing['img'] as $key=>$item):?>
+					<div class="swiper-slide relative">
+						<img class="mui-media-object" src="<?=$item?>" />
+						<div class="swiper-shadow">
+							&emsp;&emsp;营业时间：<?=$testing['y_time']?>
+						</div>
+					</div>
+				<?php endforeach;?>
+			</div>
+			<div class="swiper-pagination"></div>
+		</div>
+		<div class="service-companybox td-box">
+			<h2><?=$testing['name']?></h2>
+			<p class="second-p">
+				<span class="iconfont icon-cell"></span><span id="tel" data-tel="<?=$testing['phone']?>"><?=$testing['phone']?></span><i>&emsp;|&emsp;</i>
+				<?php if($testing['user_shouc']):?>
+					<span id="shouc" class="iconfont icon-wodeshoucang shouc"></span><span class="shouc" id="shouc_text"> 已收藏</span>
+				<?php else:?>
+					<span id="shouc" class="iconfont icon-shoucang shouc"></span><span class="shouc" id="shouc_text"> 收藏</span>
+				<?php endif;?>
+				<i>&emsp;|&emsp;</i>
+				<span class="iconfont icon-dingwei2 tomap"></span><span class="tomap" id="kmNum">0km</span>
+			</p>
+			<p class="third-p tomap"><span class="iconfont icon-dingweiweizhi"></span><?=$testing['province'].$testing['city'].$testing['area'].$testing['address']?></p>
+		</div>
+		<div class="index-thirdcontent index-firstcontent">
+			<div class="column-title">
+				<h3>检测站简介</h3>
+			</div>
+		</div>
+		<div class="list1">
+			<p class="edit_details_text"><?=$testing['content']?></p>
+		</div>
+	
+		<script type="text/javascript" charset="utf-8">
+		
+			if(localStorage.getItem("distance")){
+				$("#kmNum").text(localStorage.getItem("distance")+"km")
+			}
+			
+			var mySwiper = new Swiper('.swiper-container1', {
+				loop: true,
+               autoplay: {
+               disableOnInteraction: false,
+               delay: 4000, //1秒切换一次
+			},
+				pagination: {
+					el: '.swiper-pagination',
+					  type: 'fraction',
+				},
+			})
+			//收藏
+			mui(".second-p").on("tap",'.shouc',function(){
+				var span=$("#shouc");
+				//收藏
+				hui.loading();
+				mui.ajax('<?=site_url("testing/shouc")?>',{
+					data:{id:"<?=$testing['id']?>"},
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					success:function(res){
+						hui.closeLoading();
+						if(res.state){
+							if(res.code===1){
+								span.removeClass("icon-shoucang").addClass("icon-wodeshoucang");
+								$("#shouc_text").text(" 已收藏");
+							}
+							if(res.code===2){
+								span.removeClass("icon-wodeshoucang").addClass("icon-shoucang");
+								$("#shouc_text").text(" 收藏");
+							}
+							mui.toast(res.msg, {duration: '2000ms',type: 'div'});
+						}else{
+							//去登录
+							sign_out();
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+					}
+				});
+				
+			})
+			//拨打电话电话
+			document.getElementById("tel").addEventListener("tap",function(e){
+				tel(e.target.dataset.tel);
+			})
+         	 $(".tomap").on('tap',function(){
+              	 map('testing',"<?=$testing['id']?>")
+         	 })
+		
+		</script>
+	

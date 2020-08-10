@@ -1,0 +1,72 @@
+<body id="set">
+	<ul class="cfh-ul1" id="app">
+		<li class="li1" v-on:click="link('<?=site_url('personal/set_user')?>')">
+			<span>
+				<span class="iconfont icon-wode"></span> 个人信息
+			</span>
+			<div>
+				<a></a>
+			</div>
+		</li>
+		<li class="li1" v-on:click="link('<?=site_url('personal/set_pass')?>')">
+			<span>
+				<span class="iconfont icon-xiugaimima"></span> 修改密码
+			</span>
+			<div>
+				<a></a>
+			</div>
+		</li>
+		<li class="li1" v-on:click="link('<?=site_url('personal/address')?>')">
+			<span>
+				<span class="iconfont icon-cheliangxinxi"></span> 车主信息
+			</span>
+			<div>
+				<a></a>
+			</div>
+		</li>
+	</ul>
+	<div class="exit-user">
+		退出当前用户
+	</div>
+	<script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+	<script type="text/javascript">
+	var ve = new Vue({
+		el: "#app",
+		data: {
+			list:[]
+		},
+		methods: {
+			link:function(url){
+				window.location.href=url;
+			}	
+		}
+	})
+	$(".exit-user").click(function(){
+		//退出当前登录
+		mui.ajax('<?=site_url("personal/set")?>',{
+			data:{index:"1"},
+			dataType:'json',//服务器返回json格式数据
+			type:'get',//HTTP请求类型
+			timeout:10000,//超时时间设置为10秒；
+			success:function(res){
+				if(res.code==200){
+                  	/*
+                    mui.openWindow({
+                      url:app_url+"/index.php/login/index",
+                      extras:{
+                          name:'login'  //扩展参数
+                      }
+                    })
+                    */
+                   window.location.href="<?=site_url()?>"
+					//location.reload();
+				}
+			},
+			error:function(xhr,type,errorThrown){
+				//异常处理；
+				mui.toast("网络发生错误！", {duration: '500ms',type: 'div'});
+			}
+		});			
+	})
+</script>
+		

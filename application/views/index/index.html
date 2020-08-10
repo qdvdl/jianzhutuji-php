@@ -1,0 +1,408 @@
+
+      	<body id="index">
+			<style type="text/css">.mui-backdrop{z-index:9999999999999999;}
+			   #code-btn{
+					position: absolute;
+				   top:0.11rem;
+				   right: 0.155rem;
+				   width: 0.5rem;
+				   height: 0.46rem;
+				}
+			</style>
+		  <div style="height:1.133rem;">
+			  <header class="mui-bar mui-bar-nav">
+				  <div class="index-top">
+					  <div class="div1" id="city-page"><a id="city-text">定位中</a><span class="iconfont icon-location"></span></div>
+					  <div class="relative div2" id="search-page">
+						  <span class="magnifier iconfont icon-37"></span>
+						  <input type="text" maxlength="9" placeholder="根据关键字模糊搜索" />
+					  
+						<img id="code-btn" src="<?=base_url('resource/img/')?>saosao.png"/>
+					  
+					  </div>
+					  <div class="div3">
+						  <span class="iconfont icon-bell"  id="mail-page"><span class="mui-badge" id="mail_sum"><?=$mail_sum?></span></span>
+					  </div>
+				  </div>
+			  </header>
+		  </div>
+		  <div class="swiper-container swiper-container1">
+			  <div class="swiper-wrapper">
+				  <?php foreach($banner as $key=>$item):?>
+					  <div class="swiper-slide">
+						  <a href="<?=$item['link']?>"><!--<?=$item['link']?>-->
+							  <img src="<?=$item['src']?>" alt="<?=$item['alt']?>" />
+						  </a>
+					  </div>
+				  <?php endforeach;?>
+			  </div>
+			  <div class="swiper-pagination"></div>
+		  </div>
+		  <div class="index-firstcontent">
+			  <div class="column-title">
+				  <h3>精选商品</h3>
+				  <a data-url="<?=site_url('goods/index')?>">更多 <img class="arrow_03" src="../../../resource/img/arrow_03.png"/></a>
+			  </div>
+			  <ul class="mui-table-view mui-grid-view Purchase-list">
+				  <?php foreach($goods['goods_z'] as $item):?>
+					  <li class="mui-table-view-cell mui-media mui-col-xs-6">
+						  <a href="<?=site_url('goods/details/').$item['id']?>">
+							  <div class="border-box">
+								  <?php if($item['type']==="1"):?>
+								  <span class="common-bag">通用包·圆</span>
+								  <?php endif;?>
+								  <?php if($item['type']==="2"):?>
+								  <span class="common-bag">通用包·扁</span>
+								  <?php endif;?>
+								  <div class="img-box">
+									  <img class="mui-media-object"  src="<?=strArr($item['images'])[0]?>">
+								  </div>
+								  <div class="mui-media-body comodity"><?=$item['name']?></div>
+								  <div class="mui-media-body amounts">¥  <?=$item['price']?></div>
+								  <div class="mui-media-body sold">已售：<?=($item['sales_num']+$item['sales_nums'])?>单</div>
+							  </div>
+						  </a>
+					  </li>
+				  <?php endforeach;?>
+				  <?php foreach($goods['goods_s'] as $item):?>
+				  <li class="mui-table-view-cell mui-media mui-col-xs-6">
+					  <a href="<?=site_url('goods/details/').$item['id']?>">
+						  <div class="border-box">
+							  <div class="img-box">
+								  <img class="mui-media-object" src="<?=strArr($item['images'])[0]?>">
+							  </div>
+							  <div class="mui-media-body comodity"><?=$item['name']?></div>
+							  <div class="mui-media-body amounts">¥   <?=$item['price']?></div>
+							  <div class="mui-media-body sold">已售：<?=$item['sales']?>单</div>
+						  </div>
+					  </a>
+				  </li>
+				  <?php endforeach;?>
+			  </ul>
+		  </div>
+  <div class="grey-quarantin"></div>
+		  <div class="index-secondcontent" id="app" v-cloak>
+			  <div class="column-title">
+				  <a class="active">维修站点</a>
+				  <a>检测站点</a>
+			  </div>
+			  <ul class="column-content">
+				  <li v-for="item in shop" style="border-color:#dddddd;">
+					  <a>
+					  <div  v-on:click="link('/shop/details/'+item.id,item.distance)">
+						  <img class="mui-media-object" :src="item.img">
+					  </div>
+					  <div  style="width:55%;">
+						  <p class="name"  v-on:click="link('/shop/details/'+item.id,item.distance)"><strong>{{item.name}}</strong></p>
+						  <p class="cell"  v-on:click="link('/shop/details/'+item.id,item.distance)"><span class="iconfont icon-cell"></span>{{item.service_tel}} &thinsp; {{item.distance}}km &thinsp; <span class="right-arrow">›</span></p>
+						  <p style="width:5.2rem;overflow:hidden;text-overflow:ellipsis;white-space: nowrap;" class="site" v-on:click="map('shop',item.id)"><span class="iconfont icon-dingweiweizhi"></span>{{item.province}}{{item.city}}{{item.area}}{{item.address}}</p>
+					  </div>
+					  </a>
+				  </li>
+			  </ul>
+			  <ul class="column-content" style="display: none;">
+				  <li v-for="item in testing" style="border-color:#dddddd;">
+					  <a>
+					  <div v-on:click="link('/testing/details/'+item.id,item.distance)">
+						  <img :src="item.img">
+					  </div>
+					  <div  style="width:55%;">
+						  <p class="name" v-on:click="link('/testing/details/'+item.id,item.distance)"><strong>{{item.name}}</strong></p>
+						  <p class="cell" v-on:click="link('/testing/details/'+item.id,item.distance)"><span class="iconfont icon-cell"></span>{{item.phone}} &thinsp; {{item.distance}}km &thinsp; <span class="right-arrow">›</span></p>
+						  <p style="width:5.2rem;overflow:hidden;text-overflow:ellipsis;white-space: nowrap;" class="site" v-on:click="map('testing',item.id)"><span class="iconfont icon-dingweiweizhi"></span>{{item.province}}{{item.city}}{{item.area}}{{item.address}}</p>
+					  </div>
+					  </a>
+				  </li>
+			  </ul>
+			  <div class="relative list11">
+				  <a class="lookat-more" :href="www+taburl">查看更多站点</a>
+			  </div>
+		  </div>
+		  
+		  <div class="grey-quarantin"></div>
+  
+		  <div class="index-thirdcontent index-firstcontent">
+			  <div class="column-title">
+				  <h3>资讯信息</h3>
+  
+				  <a data-url="<?=site_url('article/index')?>">更多  <img class="arrow_03" src="../../../resource/img/arrow_03.png"/></a>
+			  </div>
+		  </div>
+  
+		  <div class="swiper-container swiper-container3">
+			  <div class="swiper-wrapper">
+				  <?php foreach($article as $key=>$item):?>
+					  <div class="swiper-slide">
+						  <a href="<?=site_url('article/details/').$item['id']?>">
+							  <img src="<?=$item['imgurl']?>" />
+							  <div><p><?=$item['title']?></p></div>
+						  </a>
+					  </div>
+				  <?php endforeach;?>
+			  </div>
+		  </div>
+	  
+		  <?php if($ad):?>
+		  <div class="mui-backdrop">
+			  <div class="index-layer">
+				  <img id="to_mail" class="advertise" src="<?=$ad['imgurl']?>" />
+				  <img class="cancel" src="<?=base_url('resource/home');?>/images/list/cancel_07.png" />
+			  </div>
+		  </div>
+		  <script type="text/javascript">
+			  $(function(){
+				  toggleBody(1);
+				  //弹窗遮罩
+				  $('.cancel').click(function(){
+					  $('.mui-backdrop').hide();
+					  toggleBody(0);
+				  });
+				  $("#to_mail").click(function(){
+						$('.mui-backdrop').hide();
+					  toggleBody(0);
+						 window.location.href="<?=site_url('mail/details/').$ad['id']?>";
+				  })
+			  })
+		  </script>
+		  <?php endif;?>
+		  <script>
+			
+			  //轮播图
+			  //3d
+			  var mySwiper = new Swiper('.swiper-container3', {
+				  centeredSlides: true,
+				  effect: 'coverflow',
+				  slidesPerView: 1,
+  
+				  loopAdditionalSlides: 100,
+				  loop: true,
+				  coverflowEffect: {
+					  rotate: 0,
+					  stretch: 90,
+					  depth: 500,
+					  modifier: 1,
+					  slideShadows: false
+				  }
+			  })
+			  //顶部
+			  var mySwiper = new Swiper('.swiper-container1', {
+				  loop: true,
+				  autoplay: {
+					  disableOnInteraction: false,
+					  delay: 4000, //1秒切换一次
+				  },
+  
+				  pagination: {
+					  el: '.swiper-pagination',
+				  },
+			  });
+			  //扫一扫
+			  $("#code-btn").click(function(){
+				  alert(1);
+			  })
+		  </script>
+		  <script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+		  <script type="text/javascript" src="<?=base_url('resource/home');?>/js/public.js"></script>
+		  <script type="text/javascript" src="<?=base_url('resource/js/');?>plusGeolocation.js"></script>
+		  <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=5bwuet8jTteg58uoKb6AS3cdn2fpKSEA"></script>
+		  <script>
+			  
+			  //显示数据门店，检测站数据，根据定位
+			  var vapp=new Vue({
+				  el:"#app",
+				  data:{
+					  shop:[],
+					  testing:[],
+					  www:"<?=site_url()?>",
+					  taburl:"/shop/index",
+				  },
+				  methods:{
+						link:function(url,distance){
+					   
+							 localStorage.setItem('distance',distance);
+						  window.location.href="<?=site_url()?>"+url;
+					  },
+					  map:function(type,id){
+						   map(type,id)
+						 return false;
+					  },
+					  updateMessage:function(){
+					  //	alert('v-for渲染已经完成')
+					  }
+				  }
+			  });
+			  //选项卡
+			  $(function(){
+				  //选项卡
+				  mui(".column-title").on("tap","a",function(){
+					  var url=$(this).data('url');
+					  if(url){
+						  window.location.href=url;
+					  }else{
+						  let index=$(this).index();
+						  vapp.taburl= index===1 ? "/testing/index" : "/shop/index";
+						  $(".column-title a").removeClass('active');
+						  $(this).addClass('active');
+						  $(".column-content").hide();
+						  $(".column-content").eq(index).show();	
+					  }
+					  
+				  })
+			  })
+			  
+			  
+			  function shop_distance(lng,lat){
+				  
+				  $.ajax({
+					  url:"<?=site_url('index/get_data')?>",
+					  data:{lng:lng,lat:lat},
+					  type:"get",
+					  dataType:"json",
+					  timeout:10000,
+					  success:function(res){
+						  hui.closeLoading(function(){
+							  if(res.code===200){
+								  vapp.shop=res.shop;
+								  vapp.testing=res.testing;
+							  }
+						  });
+					  },
+					  error:function(data){
+						  //异常处理；
+						  mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+					  }
+				  })
+			  }
+			  
+			  //去搜索页面
+			  mui(".index-top").on("tap","#search-page",function(){
+				  $(this).find('input').blur();
+				  window.location.href="<?=site_url('search/index')?>";
+			  })
+			  //去城市
+			  mui(".index-top").on("tap","#city-page",function(){
+				  window.location.href="<?=site_url('city/index')?>";
+			  })
+			  //去消息页面
+			  mui(".index-top").on("tap","#mail-page",function(){
+				  window.location.href="<?=site_url('mail/index')?>";
+			  })
+			 //定测试
+		   
+			//需要定位获取当前坐标当前坐标
+			function user_set(o){
+				o.userMail=<?=$mail_sum?>;
+				   localStorage.setItem('user_address',JSON.stringify(o));
+				$("#city-text").text(o.city);
+				shop_distance(o.lng,o.lat);
+			}
+			mui.plusReady(function(){
+			  
+			   var user_address=localStorage.getItem('user_address');
+			  
+			   if(user_address){
+				   user_set(JSON.parse(user_address));
+				 
+				}else{
+				  navigator.geolocation.getCurrentPosition(function(p) {
+					   hui.loading("定位中...");
+					
+					  if(p.coords.longitude=="5e-324"){
+						   mui.confirm("请在授权应用中,开启定位权限！","",['已开启'],function(o){
+								 location.reload()
+							},'div')
+					  }
+					  var addressinfo=p.address;
+						 addressinfo.lng=p.coords.longitude;
+						addressinfo.lat=p.coords.latitude;
+				  
+					  setLngLat(addressinfo);
+					 
+				  }, function(err) {
+				   //   alert(err.message);
+					  mui.confirm("定位失败,定位权限未开启！","",['已开启'],function(o){
+					   
+						 location.reload()
+						},'div')
+					  
+				  })
+			   }
+			})
+			
+			//地图坐标转换
+			
+		  
+			
+		   function setLngLat(p){
+			 
+			  //转换的坐标
+			  var x = p.lng;
+			  var y = p.lat;
+			  
+			  var ggPoint = new BMap.Point(x,y);
+			  var convertor = new BMap.Convertor();
+			  
+			  var pointArr = [];
+			  pointArr.push(ggPoint);
+			  convertor.translate(pointArr, 1, 5,function(data){
+				  if(data.status===0){
+						 p.lng=data.points[0].lng;
+						p.lat=data.points[0].lat;
+						user_set(p);
+				  }else{
+					  //转换失败
+						 user_set(p);
+				  }
+			  })
+		  }
+			
+			
+			
+		  </script>
+		  
+			
+		   
+  <div class="bottom bottom-line">
+			  <ul>
+				  <li class="active">
+					  <a href="javascript:;">
+						  <span class="iconfont icon-oohouse"></span>
+						  <i>首页</i>
+					  </a>
+				  </li>
+				  <li>
+					  <a href="<?=site_url('classify/index')?>">
+						  <span class="iconfont icon-iconfontzhizuobiaozhun023145"></span>
+						  <i>商品</i>
+					  </a>
+				  </li>
+				  <li>
+					  <a href="<?=site_url('shop/index')?>">
+					  <span class="iconfont icon-qicheweixiu"></span>
+					  <i>维修</i>
+					  </a>
+				  </li>
+				  <li>
+					  <a href="<?=site_url('testing/index')?>">
+					  <span class="iconfont icon-anquanjiance"></span>
+					  <i>检测</i>
+					  </a>
+				  </li>
+				  <li>
+					  <a href="<?=site_url('personal/index')?>">
+					  <span class="iconfont icon-wode"></span>
+					  <i>我的</i>
+					  </a>
+				  </li>
+			  </ul>
+		  </div>
+  
+  
+		  
+		  
+		  
+		  
+		  
+	  
+  
+  

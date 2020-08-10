@@ -1,0 +1,135 @@
+<body id="my-guarantor">
+    <div id="app" v-cloak>
+        <div class="cl-filter">
+            <div v-bind:class="{active:isactive}" v-on:click="tabClick()">
+                <a>质保服务</a>
+            </div>
+            <div v-bind:class="{active:!isactive}" v-on:click="tabClick()">
+                <a>质保协议</a>
+            </div>
+        </div>
+        <div class="index-secondcontent list1">
+            <div id="mescroll" class="mescroll" style="height:90vh;">
+                <ul class="column-content" t>
+                    <li v-for="item in list">
+                        <p class="order-number relative" v-on:click="links('img',item.number)">
+                            订单编号：{{item.number}}<span class="right">查看质保</span>
+                            <span class="border"></span>
+                        </p>
+                        <div v-on:click="links('order',item.number)">
+                            <div class="img">
+                                <img class="mui-media-object" :src="item.goods_img">
+                            </div>
+                            <div class="relative">
+                                <p class="name">{{item.goods_name}}</p>
+                                <p class="cell">试用排量：{{item.goods_cggs_name}}</p>
+                                <p class="site">适用车型：{{item.goods_ct_name}} - {{item.goods_cs_name}} - {{item.goods_cgs_name}}</p>
+                                <span class="span1">共{{item.order_num}}件<span class="price">¥ {{item.sum_money}}</span></span>
+                            </div>
+                         </div>
+                    </li>
+                </ul>
+                <div id="data-null"></div>
+           </div>
+        </div>
+        <div class="list2">
+            <p>1.非质量问题车主退货要扣除邮费；<br>
+                2.车主在24小时之内未付款，订单自动取消。
+            </p>
+        </div>
+    </div>
+    <link rel="stylesheet" href="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.css">
+	<script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+	<script src="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.js" charset="utf-8"></script>
+    <script>
+        var ve=new Vue({
+			el:"#app",
+			data:{
+				list:[],
+                isactive:true
+			},
+			methods:{
+				links:function(s,id){
+                    if(s==="order"){
+                        window.location.href="<?=site_url('order/details/')?>"+id;
+                    }else{
+                        window.location.href="<?=site_url('order/order_ok_img/')?>"+id;
+                    }
+				},
+                tabClick:function(){
+                    let off=!this.isactive;
+                    this.isactive=off;
+                    if(off){
+                        $(".list1").show();
+                        $(".list2").hide();
+                    }else{
+                        $(".list2").show();
+                        $(".list1").hide();
+                    }
+                   
+                }
+			}
+		})
+
+        var mescroll=new MeScroll("mescroll",{
+			up:{
+				callback: upCallback,	
+				isBounce: false,//此处禁止ios回弹,解析(务必认真阅读,特别是最后一点): http://www.mescroll.com/qa.html#q10
+				page:{
+					num:0,  //当前页数
+					size:10 //每页显示条数
+				},
+				htmlNodata:'<p class="upwarp-nodata">--没有更多了--</p>',
+				noMoreSize:10, //数据大于多少条时显示htmlNodata
+				toTop:{ 
+					//回到顶部
+					src:"http://www.mescroll.com/demo/res/img/mescroll-totop.png",//回到顶部图片样子
+					offset: 10	//滚动到多少个PX时出现回到顶部
+				},
+				empty:{
+					warpId:"data-null",
+					//icon:"http://www.mescroll.com/demo/dotJump/option/mescroll-empty.png",
+					tip:"<div class='nolist-div'><span class='iconfont icon-zanwuxinxi'></span><p>暂无质保服务订单</p></div>"
+				}
+			}
+		})
+		
+		//上拉加载回调函数
+		var index=0;
+		function upCallback(page){
+			setTimeout(function(){
+				data_ajax({page:page.num,limit:page.size,index:"1"},function(pageTool,data){
+					if(page.num==1){
+						ve.list=[];
+					}
+					mescroll.endByPage(data.length, pageTool);
+					for(var i=0;i<data.length;i++){
+						ve.list.push(data[i]);
+					}
+				})
+			},500)
+		}
+		//模拟服务器端数据
+		function data_ajax(data,succEvent){
+			//ajax获取数据
+			$.ajax({
+				url:"<?=site_url('order/quality')?>",
+				data:data,
+				dataType:"json",
+				type:"get",
+				timeout:10000,
+				success:function(res){
+					if(res.state==="success"){
+						succEvent(res.pageTool,res.data);
+					}
+				},
+				error:function(data){
+					//异常处理；
+					mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+					mescroll.endErr();
+				}
+			});
+		}
+    </script>
+
+ 

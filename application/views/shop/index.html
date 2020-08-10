@@ -1,0 +1,288 @@
+<style type="text/css">
+	.select_box{width: 100%;position: absolute;left: 0;top: 54px;z-index: 999;display: none;background: #FFFFFF;}
+</style>
+<body class="chance-testing-station">
+   <div id="app" v-cloak>
+	<div class="chance-shadow">
+		<ul class="cfh-ul1">
+			<li class="li1">
+				<span id="select_text">请选择区域</span>
+				<a></a>
+			</li>
+		</ul>
+		<div class="select_box">
+			<ul class="cfh-ul1 cfh-ul2">
+				<li  data-name="">
+					<span>全部</span>
+				</li>
+				<li v-for="(item,index) in caty"  :data-name="item.text">
+					<span>{{item.text}}</span>
+				</li>
+				
+			</ul>
+		</div>
+	 	
+	</div>
+	<div class="index-secondcontent" >
+		<div id="mescroll" class="mescroll" style="height: 78vh;">
+			<ul class="column-content">
+				<li v-for="(shop,index) in list">
+					<a href="javascript:;">
+						<div v-on:click="links(shop.id,shop.distance)">
+							<img class="mui-media-object" :src="shop.img">
+						</div>
+						<div>
+							<p class="name" v-on:click="links(shop.id,shop.distance)">{{shop.name}}</p>
+							<p class="cell" v-on:click="links(shop.id,shop.distance)"><span class="iconfont icon-cell"></span>{{shop.service_tel}} &thinsp; {{shop.distance}}km &thinsp; <span class="right-arrow">›</span></p>
+							<p class="site" v-on:click="map('shop',shop.id)"><span class="iconfont icon-dingweiweizhi"></span>{{shop.city}}{{shop.area}}{{shop.address}}</p>
+						</div>
+					</a>
+				</li>
+			</ul>
+			<div id="data-null"></div>
+		</div>
+	</div>
+	
+	
+	</div>
+	
+	
+	<link rel="stylesheet" href="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.css">
+	<script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+	<script src="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.js" charset="utf-8"></script>
+  <script type="text/javascript" src="<?=base_url('resource/js/');?>plusGeolocation.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=5bwuet8jTteg58uoKb6AS3cdn2fpKSEA"></script>
+	<script type="text/javascript" src="<?php echo base_url('resource');?>/js/city.data-3.js"></script>
+	<script type="text/javascript">
+		
+		
+		
+       var wx_type="3";
+   
+     	if(localStorage.getItem('goods_types')){
+           wx_type=localStorage.getItem('goods_types');
+        }
+		var ve = new Vue({
+			el: "#app",
+			data: {
+				list: [],
+				caty:[],
+			},
+			methods: {
+				links: function(id,distance) {
+                 
+					localStorage.setItem('distance',distance);
+					window.location.href="<?=site_url('shop/details/')?>"+id;
+				},
+              	map:function(type,id){
+                  map(type,id);
+                  return false;
+                }
+			}
+		})
+	
+		
+		
+		//数据刷新
+		var mescroll = new MeScroll("mescroll", {
+			down: {
+				auto: false
+			},
+			up: {
+				auto: false,
+				callback: upCallback,
+				isBounce: false, //此处禁止ios回弹,解析(务必认真阅读,特别是最后一点): http://www.mescroll.com/qa.html#q10
+				page: {
+					num: 0, //当前页数
+					size: 10 //每页显示条数
+				},
+				htmlNodata: '<p class="upwarp-nodata">--没有更多了--</p>',
+				noMoreSize: 10, //数据大于多少条时显示htmlNodata
+				toTop: {
+					//回到顶部
+					src: "http://www.mescroll.com/demo/res/img/mescroll-totop.png", //回到顶部图片样子
+					offset: 10 //滚动到多少个PX时出现回到顶部
+				},
+				empty: {
+					warpId: "data-null",
+					//icon:"http://www.mescroll.com/demo/dotJump/option/mescroll-empty.png",
+					tip: '<div class="nolist-div" style="background:#fff;"><span class="iconfont icon-zanwuxinxi"></span><p>暂无此商品</p></div>'
+				}
+			}
+		})
+		//上拉加载回调函数
+		var index = 0,area_text="",lng="",lat="";
+		function upCallback(page) {
+			data_ajax({
+				page: page.num,
+				limit: page.size,
+				area:area_text,
+				lng:lng,
+				lat:lat,
+				wx_type:wx_type
+			}, function(pageTool, data) {
+				var len = data.length;
+				if(page.num == 1) {
+					ve.list = [];
+				}
+				mescroll.endByPage(len, pageTool);
+				for(var i = 0; i < data.length; i++) {
+					ve.list.push(data[i]);
+				}
+			})
+		}
+		//服务器端数据
+		function data_ajax(data, succEvent) {
+			setTimeout(function() {
+				//ajax获取数据
+				$.ajax({
+					url: "<?=site_url('shop/get_shop')?>",
+					data: data,
+					dataType: "json",
+					type: "get",
+					timeout:10000,
+					success: function(res) {
+						if(res.state === "success") {
+							succEvent(res.pageTool, res.data);
+						}
+					},
+					error:function(data){
+						//异常处理；
+						mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+						mescroll.endErr();
+					}
+				});
+			}, 500)
+		}
+		
+	    //模拟定位
+		
+		
+		function select_func(){
+			ve.list=[];
+			mescroll.resetUpScroll();
+		}
+		
+		mui(".chance-shadow").on("tap","li",function(){
+			var data=$(this).data();
+			if($(this).hasClass('li1')){
+				$(".select_box").show();
+			}else{
+				area_text=data.name;
+				$("#select_text").text(area_text);
+				if(area_text==""){
+					$("#select_text").text("全部");
+				}
+				$(".select_box").hide().find('li').removeClass('active');
+				$(this).addClass('active');
+				select_func();
+			}
+		})
+         //需要定位获取当前坐标当前坐标
+          function user_set(o){
+           	  localStorage.setItem('user_address',JSON.stringify(o));
+              for(var i in cityData3){
+                  if(cityData3[i].text===o.province){
+                      var city=cityData3[i].children;
+                      for(var v in city){
+                          if(city[v].text===o.city){
+                              ve.caty=city[v].children
+                          }
+                      }
+                  }
+              }
+
+			lng=o.lng,
+			lat=o.lat
+			select_func()
+			  
+          }
+          mui.plusReady(function(){
+             var user_address=localStorage.getItem('user_address');
+            //user_set(JSON.parse(user_address));
+            //var a = {a:1,b:2}
+             if(user_address){
+             	user_set(JSON.parse(user_address));
+              }else{
+                navigator.geolocation.getCurrentPosition(function(p) {
+                 	hui.loading("定位中...");
+                  if(p.coords.longitude=="5e-324"){
+                         mui.confirm("请在授权应用中,开启定位权限！","",['已开启'],function(o){
+                      		 location.reload()
+                  		},'div')
+                    }
+                    var addressinfo=p.address;
+                   	addressinfo.lng=p.coords.longitude;
+                  	addressinfo.lat=p.coords.latitude;
+                    setLngLat(addressinfo);
+                   
+                }, function(err) {
+                  // alert(err.message);
+                    mui.confirm("定位失败,定位权限未开启！","",['已开启'],function(o){
+                     
+                       location.reload()
+                  	},'div')
+                    
+                })
+             }
+          })
+          
+          //地图坐标转换
+         function setLngLat(p){
+			//转换的坐标
+			var x = p.lng;
+			var y = p.lat;
+			var ggPoint = new BMap.Point(x,y);
+			var convertor = new BMap.Convertor();
+			var pointArr = [];
+			pointArr.push(ggPoint);
+			convertor.translate(pointArr, 1, 5,function(data){
+				if(data.status===0){
+                  	 p.lng=data.points[0].lng;
+                 	 p.lat=data.points[0].lat;
+                 	 user_set(p);
+				}else{
+					//转换失败
+                   	user_set(p);
+				}
+			})
+		}
+	</script>
+	
+	<div class="bottom bottom-line">
+			<ul>
+				<li>
+					<a href="<?=site_url()?>">
+						<span class="iconfont icon-oohouse"></span>
+						<i>首页</i>
+					</a>
+				</li>
+				<li>
+					<a href="<?=site_url('classify/index')?>">
+						<span class="iconfont icon-iconfontzhizuobiaozhun023145"></span>
+						<i>商品</i>
+					</a>
+				</li>
+				<li  class="active">
+					<a href="javascript:;">
+					<span class="iconfont icon-qicheweixiu"></span>
+					<i>维修</i>
+					</a>
+				</li>
+				<li>
+					<a href="<?=site_url('testing/index')?>">
+					<span class="iconfont icon-anquanjiance"></span>
+					<i>检测</i>
+					</a>
+				</li>
+				<li>
+					<a href="<?=site_url('personal/index')?>">
+					<span class="iconfont icon-wode"></span>
+					<i>我的</i>
+					</a>
+				</li>
+			</ul>
+		</div>
+
+
+	

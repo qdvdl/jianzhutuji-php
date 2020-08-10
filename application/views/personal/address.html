@@ -1,0 +1,155 @@
+<body id="set">
+   <div id="mescroll" class="mescroll" style="height:92vh;">
+        <ul class="adress-list" id="app" v-cloak>
+            <li v-for="(item,index) in list">
+                <h4>{{item.name}} <span class="cell">{{item.tel}}</span></h4>
+                <p>{{item.province}}{{item.city}}{{item.carCode}}</p>
+                <div class="overflow">
+                    <div class="left mui-radio mui-left">
+						<label>
+						<input name="radio" type="radio"  v-model="defType" :value="item.id">设为默认</label>
+					</div>
+                    <div class="right">
+                        <span class="audit" v-on:click="edit(item.id)">编辑</span>
+                        <span class="delate" v-on:click="del(item.id)">删除</span>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <div id="data-null"></div>
+    </div>
+
+    <div style="height: 1.186rem;"></div>
+    <a href="<?=site_url('personal/addAddress')?>" class="exit-user">新增车主信息</a>
+   
+    <link rel="stylesheet" href="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.css">
+    <script src="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+    <script>
+        var ve=new Vue({
+			el:"#app",
+			data:{
+				list:[],
+				defType:"<?=$address['id']?>"
+			},
+			watch:{
+				defType:function(){
+					//设置为默认地址
+					mui.ajax('<?=site_url("personal/address")?>',{
+						data:{id:this.defType},
+						dataType:'json',//服务器返回json格式数据
+						type:'post',//HTTP请求类型
+						timeout:10000,//超时时间设置为10秒；
+						success:function(res){
+							if(res.state){
+								mui.toast(res.msg);
+							}else{
+								mui.toast(res.msg);
+							}
+						},
+						error:function(xhr,type,errorThrown){
+							//异常处理；
+							mui.toast("网络发生错误！", {duration: '500ms',type: 'div'});
+						}
+					});
+
+				}
+			},
+			methods:{
+				edit:function(id){
+					window.location.href="<?=site_url('personal/editAddress/')?>"+id;
+				},
+				del:function(id){
+					let thisE=this;
+					let list=this.list.filter((item)=>{
+						return item.id!==id;
+					})
+					//删除
+					mui.ajax('<?=site_url("personal/delAddress")?>',{
+						data:{id:id},
+						dataType:'json',//服务器返回json格式数据
+						type:'post',//HTTP请求类型
+						timeout:10000,//超时时间设置为10秒；
+						success:function(res){
+							if(res.state){
+								if(list.length===0){
+									mescroll.resetUpScroll();
+								}
+								thisE.list=list;
+								mui.toast(res.msg);
+							}else{
+								mui.toast(res.msg);
+							}
+						},
+						error:function(xhr,type,errorThrown){
+							//异常处理；
+							mui.toast("网络发生错误！", {duration: '500ms',type: 'div'});
+						}
+					});
+				}
+			}
+		})
+		var mescroll=new MeScroll("mescroll",{
+			up:{
+				callback: upCallback,	
+				isBounce: false,//此处禁止ios回弹,解析(务必认真阅读,特别是最后一点): http://www.mescroll.com/qa.html#q10
+				page:{
+					num:0,  //当前页数
+					size:10 //每页显示条数
+				},
+				htmlNodata:'<p class="upwarp-nodata">--没有更多了--</p>',
+				noMoreSize:10, //数据大于多少条时显示htmlNodata
+				toTop:{ 
+					//回到顶部
+					src:"http://www.mescroll.com/demo/res/img/mescroll-totop.png",//回到顶部图片样子
+					offset: 10	//滚动到多少个PX时出现回到顶部
+				},
+				empty:{
+					warpId:"data-null",
+					//icon:"http://www.mescroll.com/demo/dotJump/option/mescroll-empty.png",
+					tip:"<div class='nolist-div'><span class='iconfont icon-zanwuxinxi'></span><p>暂无地址</p></div>"
+				}
+			}
+		})
+		
+		//上拉加载回调函数
+		var index=0;
+		function upCallback(page){
+			setTimeout(function(){
+				data_ajax({page:page.num,limit:page.size,index:"def"},function(pageTool,data){
+					if(page.num==1){
+						ve.list=[];
+					}
+					mescroll.endByPage(data.length, pageTool);
+					for(var i=0;i<data.length;i++){
+						ve.list.push(data[i]);
+					}
+				})
+			},500)
+		}
+		//模拟服务器端数据
+		function data_ajax(data,succEvent){
+			//ajax获取数据
+			$.ajax({
+				url:"<?=site_url('personal/address')?>",
+				data:data,
+				dataType:"json",
+				type:"get",
+				timeout:10000,
+				success:function(res){
+					if(res.state==="success"){
+						succEvent(res.pageTool,res.data);
+					}
+				},
+				error:function(data){
+					//异常处理；
+					mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+					mescroll.endErr();
+				}
+			});
+		}
+
+    </script>
+
+
+   

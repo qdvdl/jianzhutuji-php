@@ -1,0 +1,91 @@
+<body class="logon">
+<div id="app" v-cloak>
+	<div class="relative">
+		<img style="margin-bottom: 1.186rem;" class="logon-bk" src="<?=base_url('resource/home/images/list/logon-bk.png')?>" />
+		<img class="logon-logo" src="<?=base_url('resource/home/images/list/logo.png')?>" />
+	</div>
+	<form class="mui-input-group logonform">
+		<input type="text" class="mui-input-clear" maxlength="11" placeholder="手机号" v-model="tel">
+		<input type="password" class="mui-input-password" maxlength="8" v-model="pass" placeholder="密码">
+		<button type="button" v-on:click="submitUserInfo()" class="logon-btn">登录</button>
+	</form>
+	<div class="log-third">
+		<a v-on:click="link('r')" class="left">立即注册</a>
+		<a v-on:click="link('p')"  class="right">忘记密码</a>
+	</div>
+ 
+</div>
+<script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+<script type="text/javascript">
+var old_back = mui.back;
+mui.back = function(){
+    mui.toast("您还没有登录！");
+   return false;
+}
+
+var ve = new Vue({
+	el: "#app",
+	data: {
+		tel:"",
+		pass:""
+	},
+	watch:{
+		tel:function(){
+			this.tel=this.tel.replace(/\D/g,'');
+		}
+	},
+	methods: {
+      	link:function(t){
+          var open=t==="r" ? "login/register" : "login/retrieve_pass";
+          
+          	var webview = mui.openWindow({
+			  url:app_url+'/index.php/'+open,
+			  extras:{
+				  name:'login'  //扩展参数
+			  }
+			})
+        	//href="<?=site_url('login/register')?>"
+            //href="<?=site_url('login/retrieve_pass')?>"
+        },
+		submitUserInfo:function(){
+			let tel=/^[1][3,4,5,7,8][0-9]{9}$/;
+			let strTel=tel.test(this.tel);
+			let data={tel:this.tel,pass:this.pass};
+			if(this.tel==""){
+				mui.toast("请填写手机号！");	
+				return;
+			}
+			if(data.pass==""){
+				mui.toast("请填写密码！");	
+				return;
+			}
+			if(!strTel){
+				mui.toast("手机号不正确！");	
+				return;
+			}
+			hui.loading("登录中...");
+			//提交用户信息
+			mui.ajax('<?=site_url("login/logins")?>',{
+				data:data,
+				dataType:'json',//服务器返回json格式数据
+				type:'post',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				success:function(res){
+					hui.closeLoading(function(){
+						if(res.state){
+                        	 old_back();
+							//location.reload();
+						}else{
+							mui.toast(res.msg);
+						}
+					});
+				},
+				error:function(xhr,type,errorThrown){
+					//异常处理；
+					mui.toast("网络发生错误！", {duration: '500ms',type: 'div'});
+				}
+			});
+		}
+	}
+})
+</script>

@@ -1,0 +1,196 @@
+<body class="evaluation-service">
+	<div id="app" v-cloak>
+    <div class="index-firstcontent">
+        <div class="column-title">
+            <h3>维修站点</h3>
+            <span><a href="<?=site_url('order/order_ok_img/').$order['number']?>">查看质保凭证</a></span>
+        </div>
+        <ul class="mui-table-view">
+            <li class="mui-table-view-cell">
+                <a class="mui-navigate-right"><?=$order['shop_name']?></a>
+                <!-- <span class="Right-arrow"></span> -->
+            </li>
+        </ul>
+    </div>
+    <div class="index-firstcontent">
+        <div class="column-title column-title4">
+            <h3>评价</h3>
+        </div>
+        <div class="service-evaluation">
+            <p>服务评价：
+				<span class="iconfont" v-bind:class="[lv>=1 ? 'icon-wodeshoucang' : 'icon-shoucang']" v-on:click="evaluation(1)"></span>
+                <span class="iconfont" v-bind:class="[lv>=2 ? 'icon-wodeshoucang' : 'icon-shoucang']" v-on:click="evaluation(2)"></span>
+                <span class="iconfont" v-bind:class="[lv>=3 ? 'icon-wodeshoucang' : 'icon-shoucang']" v-on:click="evaluation(3)"></span>
+                <span class="iconfont" v-bind:class="[lv>=4 ? 'icon-wodeshoucang' : 'icon-shoucang']" v-on:click="evaluation(4)"></span>
+                <span class="iconfont" v-bind:class="[lv>=5 ? 'icon-wodeshoucang' : 'icon-shoucang']" v-on:click="evaluation(5)"></span>
+            </p>
+        </div>
+        <div class="evaluation-mess">
+            <h3>评价信息</h3>
+            <div class="mess-box">
+                <textarea maxlength="150" v-model="content">{{content}}</textarea>
+            </div>
+            <h3 class="updata-img">上传图片（最多上传6张图片）</h3>
+            <ul>
+                <li v-for="item in imgurl"><img :src="item"></li>
+                <li v-if="imgurl.length <6" v-on:click="uploadimg()"><img src="<?=base_url('resource/home/images/list/updata-img.jpg')?>" id="update_img" alt=""></li>
+            </ul>
+        </div>
+    </div>
+    <div style="height: 1.186rem;"></div>
+    <div class="sumbit" v-on:click="submits()">提交</div>
+  </div>
+ 	<link rel="stylesheet" type="text/css" href="<?=base_url('resource');?>/css/img_size.css"/>
+	<script src="<?=base_url('resource');?>/js/mui.zoom.js"></script>
+    <script src="<?=base_url('resource');?>/js/mui.previewimage.js"></script>
+	<script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+	<!--选择媒体-->
+	<div id="picture" class="mui-popover mui-popover-action mui-popover-bottom">
+	    <ul class="mui-table-view">
+	        <li class="mui-table-view-cell" id="button1">
+	            <a href="#">拍照</a>
+	        </li>
+	        <li class="mui-table-view-cell" id="button2">
+	            <a href="#">相册选择</a>
+	        </li>
+	    </ul>
+	    <ul class="mui-table-view">
+	        <li class="mui-table-view-cell">
+	            <a href="#picture"><b>取消</b></a>
+	        </li>
+	    </ul>
+	</div>
+	<script>
+		mui.previewImage();	
+		//显示数据门店，检测站数据，根据定位
+		var ve=new Vue({
+			el:"#app",
+			data:{
+				imgurl:[],
+                content:"",
+				lv:1
+			},
+			methods:{
+				evaluation:function(lv){
+					this.lv=lv;
+				},
+				uploadimg:function(){
+					 mui('#picture').popover('show');
+				},
+				submits:function(){
+					var len=this.imgurl.length;
+					if(len<1){
+						mui.toast("请上传图片!");
+					    return false;
+					}
+					if(this.content==""){
+						mui.toast("请填写评价信息!");
+						return false;
+					}
+					var imgstr="";
+					for(var i=0;i<len;i++){
+						if(imgstr==""){
+						    imgstr=this.imgurl[i];
+						}else{
+						    imgstr+=","+this.imgurl[i];
+						}
+					}
+					
+					let data={
+						shop_id:"<?=$order['shop_id']?>",
+						content:this.content,
+						level:this.lv,
+						images:imgstr,
+                        id:"<?=$order['number']?>"
+					}
+					//提交数据
+					hui.loading("提交中");
+					mui.ajax('<?=site_url("order/evaluation")?>',{
+					    data:data,
+					    dataType:'json',//服务器返回json格式数据
+					    type:'post',//HTTP请求类型
+					    timeout:10000,//超时时间设置为10秒；
+					    success:function(res){
+					        hui.closeLoading(function(){
+					            if(res.state){
+					                mui.toast(res.msg);
+									backs();
+					                //window.location.reload();
+					            }else{
+									if(res.code==201){
+										location.reload();	
+									}else{
+										  mui.toast(res.msg);
+									}
+					            }	
+					        });
+					    },
+					    error:function(xhr,type,errorThrown){
+					        //异常处理；
+					        mui.toast("网络发生错误！", {duration: '500ms',type: 'div'});
+					    }
+					});
+					
+				}
+			}
+		});
+		var btn1 = document.getElementById("button1");
+		 var btn2 = document.getElementById("button2");
+		 var server=app_url+"/shop.php/main/upload"//上传地址;
+		
+		 mui.plusReady(function(){
+		    btn2.addEventListener("tap",function(){
+		    
+		      mui("#picture").popover('hide');
+		        appendByGallery();
+		    })
+		
+		    btn1.addEventListener("tap",function(){
+		      mui("#picture").popover('hide');
+		        appendByCamera();
+		    })
+		
+		    // 拍照添加文件
+		    function appendByCamera(){
+		        plus.camera.getCamera().captureImage(function(p){
+		            upload(p)
+		        });	
+		    }
+		
+		    // 从相册添加文件
+		    function appendByGallery(){
+		        plus.gallery.pick(function(p){
+		            upload(p)
+		        });
+		    }
+		
+		    function upload(p){
+		        //开始上传
+		        hui.loading("图片上传中...");
+		        var task=plus.uploader.createUpload(server,
+		            {method:'POST'},
+		            function(t,status){ //上传完成
+		                hui.closeLoading(function(){
+		                  if(status==200){
+		                    var res=JSON.parse(t.responseText);
+		                   
+		                   // console.log(res);
+		                    if(res.error===0){
+								ve.imgurl.push(res.path);
+		                        mui.toast(res.msg);
+		                    }else{
+		                      mui.toast(res.msg);
+		                    }
+		
+		                  }else{
+		                     mui.toast("上传发生了错误!");
+		                  }
+		                });
+		            }
+		        );
+		        task.addData('path', 'evaluation');
+		        task.addFile(p,{key:'evaluation'}); 
+		        task.start();
+		    }
+		})
+</script>

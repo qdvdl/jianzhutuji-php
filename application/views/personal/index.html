@@ -1,0 +1,151 @@
+<body id="my-home">
+	<div class="comodity-list-top">
+		<a href="<?=site_url('personal/set')?>">
+			<span class="iconfont icon-shezhi"></span>
+		</a>
+		<a href="<?=site_url('mail/index')?>">
+			<span class="iconfont icon-bell"><span class="mui-badge" id="mail_sum"><?=$mail_sum?></span></span>
+		</a>
+	</div>
+	<div class="title-show">
+		<?php if($user['headimg']):?>
+			<img class="mui-media-object" src="<?=$user['headimg']?>">
+		<?php else:?>
+			 <img class="mui-media-object" src="<?=base_url('resource/home/images/list/order-taking_03.png')?>">
+		<?php endif;?>	
+		<p><?=$user['nickname']?></p>
+		<p><?=$user['tel']?></p>
+	</div>
+	<p class="home-title">我的订单</p>
+	<ul class="mui-row">
+		<li class=" mui-col-xs-3 mui-col-sm-3">
+			<a href="<?=site_url('order/my_order/0')?>">
+				<span class="iconfont icon-moban"></span>
+				<div class="">全部订单</div>
+			</a>
+		</li>
+		<li class=" mui-col-xs-3 mui-col-sm-3">
+			<a href="<?=site_url('order/my_order/1')?>">
+				<span class="iconfont icon-daifukuan"></span>
+				<div class="">待付款</div>
+			</a>
+		</li>
+		<li class=" mui-col-xs-3 mui-col-sm-3">
+			<a href="<?=site_url('order/my_order/2')?>">
+				<span class="iconfont icon-xinxinicon"></span>
+				<div class="">待安装</div>
+			</a>
+		</li>
+		<li class=" mui-col-xs-3 mui-col-sm-3">
+			<a href="<?=site_url('order/my_order/3')?>">
+				<span class="iconfont icon-yiwancheng"></span>
+				<div class="">已完成</div>
+			</a>
+		</li>
+	</ul>
+	<ul class="cfh-ul1">
+		<li class="li1">
+			<a href="<?=site_url('storage/shopping')?>">
+				<span>
+					<span class="iconfont icon-wode-gouwuche"></span>我的购物车
+				</span>
+				<div>
+					<span class="number"><?=$shoping_sum?></span>
+					<span class="right-arrow"></span>
+				</div>
+			</a>
+		</li>
+		<li class="li1">
+			<a href="<?=site_url('integral/index')?>">
+				<span>
+					<span class="iconfont icon-wodejifen"></span> 我的积分
+				</span>
+				<div>
+					<span class="number"><?=$user['integral']?></span>
+					<span class="right-arrow"></span>
+				</div>
+			</a>
+		</li>
+		<li class="li1">
+			<a href="<?=site_url('personal/collection')?>">
+				<span>
+					<span class="iconfont icon-wodeshoucang"></span> 我的收藏
+				</span>
+				<div>
+					<span class="right-arrow"></span>
+				</div>
+			</a>
+		</li>
+		<li class="li1">
+			<a href="<?=site_url('order/quality')?>">
+				<span>
+					<span class="iconfont icon-zhibao"></span> 我的质保
+				</span>
+				<div>
+					<span class="right-arrow"></span>
+				</div>
+			</a>
+		</li>
+		<li class="li1">
+			<a href="<?=site_url('article/agreement/157')?>">
+				<span>
+					<span class="iconfont icon-guanyu"></span> 关于中自
+				</span>
+				<div>
+					<span class="right-arrow"></span>
+
+				</div>
+			</a>
+		</li>
+		<li class="li1 service-cell">
+			<span>
+				<span class="iconfont icon-kefu"></span> 客服电话
+			</span>
+			<div>
+				<span class="right-arrow"></span>
+			</div>
+		</li>
+	</ul>
+	<script type="text/javascript" charset="utf-8">
+      
+		$(function() {
+			$('.service-cell').click(function() {
+				tel("<?=$tel?>");
+			});
+		})
+	</script>
+  	<div class="bottom bottom-line">
+			<ul>
+				<li>
+					<a href="<?=site_url()?>">
+						<span class="iconfont icon-oohouse"></span>
+						<i>首页</i>
+					</a>
+				</li>
+				<li>
+					<a href="<?=site_url('classify/index')?>">
+						<span class="iconfont icon-iconfontzhizuobiaozhun023145"></span>
+						<i>商品</i>
+					</a>
+				</li>
+				<li>
+					<a href="<?=site_url('shop/index')?>">
+					<span class="iconfont icon-qicheweixiu"></span>
+					<i>维修</i>
+					</a>
+				</li>
+				<li>
+					<a href="<?=site_url('testing/index')?>">
+					<span class="iconfont icon-anquanjiance"></span>
+					<i>检测</i>
+					</a>
+				</li>
+				<li  class="active">
+					<a href="javascript:;">
+					<span class="iconfont icon-wode"></span>
+					<i>我的</i>
+					</a>
+				</li>
+			</ul>
+		</div>
+	

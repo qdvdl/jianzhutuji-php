@@ -1,0 +1,77 @@
+<body class="vehicle-classfication">
+	<?php if($classify_son['children']):?>
+		<ul class="mui-table-view type-ul1 classifBox">
+			<?php foreach($classify_son['children'] as $key=>$item):?>
+				<li class="mui-table-view-cell mui-media <?php if($key===0) echo 'active';?>" data-id="<?=$item['id']?>">
+					<a href="javascript:;">
+						<img class="mui-media-object mui-pull-left" src="<?=$item['icon']?>">
+						<div class="mui-media-body">
+							<?=$item['name']?>
+						</div>
+					</a>
+				</li>
+			<?php endforeach;?>
+		</ul>
+	<?php else:?>
+		<div class="inno">此车品牌，暂无车型哦!</div>
+	<?php endif;?>
+	<?php foreach($classify_son['children'] as $key=>$item):?>
+		<ul class="rightside-ul" id="son_ul_<?=$item['id']?>" style="display: none;">
+			<?php foreach($item['children'] as $k=>$son):?>
+			<li><?=$son['name']?>年：
+				<div>
+					<?php foreach($son['children'] as $ks=>$sons):?>
+						<a href="javascript:;" data-id="<?=$sons['id']?>"><?=$sons['name']?></a>
+					<?php endforeach;?>
+				</div>
+			</li>
+			<?php endforeach;?>
+		</ul>
+	<?php endforeach;?>
+		
+	<script>
+		var id=$(".classifBox li").eq(0).data('id');
+		$("#son_ul_"+id).show();
+		//数据LI点击事件
+		mui(".classifBox").on('tap',"li",function(){
+			$(".classifBox li").removeClass('active');
+			$(this).addClass("active");
+			var id=$(this).data('id');
+			$(".rightside-ul").hide();
+			$("#son_ul_"+id).show();
+		})
+		//数据点击事件
+		mui(".rightside-ul").on("tap","a",function(){
+			$('.rightside-ul li a').removeClass('active');
+			var id=$(this).addClass("active").data('id');
+			get_goods(id);
+		})
+		
+		function get_goods(classify_id){
+			hui.loading("加载中...");
+			mui.ajax('<?=site_url("classify/getGoods")?>',{
+				data:{id:classify_id},
+				dataType:'json',//服务器返回json格式数据
+				type:'get',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				success:function(res){
+					hui.closeLoading(function(){
+						if(res.code===200){
+							if(res.data){
+								window.location.href="<?=site_url('goods/details/')?>"+res.data.id
+							}
+						}
+					});
+				},
+				error:function(xhr,type,errorThrown){
+					//异常处理；
+					mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+				}
+			});
+		}
+		
+		
+		$('.icon-fanhui').click(function() {
+			window.history.go(-1)
+		});
+	</script>

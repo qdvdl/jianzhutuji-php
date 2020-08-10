@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			li{height: 40px;line-height: 40px;padding-left: 15px;font-size: 20px;color: green; border-bottom: 1px saddlebrown solid;}
+			li a{text-decoration: none;}
+			.content{display: inline-block;width: 380px;text-align: left;}
+			#code{text-align: center;position: fixed;left: 0;top: 50%;width: 200px;height: 220px;margin-top:-110px;}
+		</style>
+	</head>
+	<body>
+		<h1 style="text-align: center;">APP连接配置</h1>
+		<table border="1" style="width: 1200px;margin: 0 auto;text-align: center;" id="app">
+			<tr style="height: 40px;"><th>序号</th><th>名称</th><th>连接</th><th>详情</th></tr>
+			<tr v-for="(item,index) in list" style="height: 40px;">
+				<td>{{index+1}}</td>
+				<td>{{item.name}}</td>
+				<td><div class="content">{{item.link}}</div></td>
+				<td><a :href="url+item.link+item.id">详情</a></td>
+			</tr>
+		</table>
+		<div id="code">
+			<h4 style="text-align: center;">扫一扫预览</h4>
+			<img width="200" height="200" src="1550560221.png"/>
+		</div>
+		<script src="vue-2.5.16.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var data=[
+				{name:"首页",link:"/index.php/index/index/",id:""},
+				{name:"选择城市",link:"/index.php/city/index/",id:""},
+				{name:"站内信",link:"/index.php/mail/index/",id:""},
+				{name:"站内信详情",link:"/index.php/mail/details/",id:"57"},
+				{name:"搜索页面",link:"/index.php/search/index/",id:""},
+				{name:"商品列表",link:"/index.php/goods/index/",id:""},
+				{name:"商品详情",link:"/index.php/goods/details/",id:"17"},
+				{name:"维修站列表",link:"/index.php/shop/index/",id:""},
+				{name:"维修站详情",link:"/index.php/shop/details/",id:"13"},
+				{name:"检测站列表",link:"/index.php/testing/index/",id:""},
+				{name:"检测站详情",link:"/index.php/testing/details",id:"20"},
+				{name:"分类页面",link:"/index.php/classify/index/",id:""},
+				{name:"分类详情",link:"/index.php/classify/classGoods/",id:"83"},
+				{name:"咨询信息",link:"/index.php/article/index/",id:""},
+				{name:"咨询信息详情",link:"/index.php/article/details/",id:"185"},
+				{name:"个人中心",link:"/index.php/personal/index/",id:""},
+				{name:"评价列表",link:"/index.php/shop/evaluate/",id:"13"},
+				{name:"购物车",link:"/index.php/storage/shopping/",id:""},
+				{name:"订单页面",link:"/index.php/order/index/",id:"I307317467727590"},
+				{name:"积分管理",link:"/index.php/integral/index/",id:""},
+				{name:"我的收藏",link:"/index.php/personal/collection",id:""},
+				{name:"关于自中",link:"/index.php/article/agreement/",id:"157"},
+				{name:"设置",link:"/index.php/personal/set/",id:""},
+				{name:"修改用户信息",link:"/index.php/personal/set_user/",id:""},
+				{name:"修改密码",link:"/index.php/personal/set_pass/",id:""},
+			];
+			//
+			var ve=new Vue({
+				el:"#app",
+				data:{
+					url:"http://127.0.0.1/vdlShop",
+					list:data
+				}
+			});
+		</script>
+		
+	</body>
+</html>

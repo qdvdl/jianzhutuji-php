@@ -1,0 +1,483 @@
+	<body id="myshoppingcart" class="myshoppingcart2">
+		<div class="comodity-list-top">
+			<span class="iconfont icon-fanhui" onClick="backs()"></span>
+			<h3>我的购物车</h3>
+			<span class="finish-text edit_btn_app" id="edit_btn">编辑</span>
+		</div>
+		<div  id="app" v-cloak>
+		<div id="mescroll" class="mescroll" style="height: 84vh;">
+			<ul class="mui-table-view" id="goods-box">
+				<li class="mui-table-view-cell mui-media overflow" v-for="(goods,index) in list">
+					<input v-if="!editOff" name="checkbox" type="checkbox" :id="'check_'+goods.us_id" v-on:change="checkboxBtn(goods,$event)" :value="goods" v-model="checkedArr">
+					<input v-else name="checkdel" type="checkbox" :id="'check_del_'+goods.us_id" v-on:change="checkboxDel(goods,$event)" :value="goods" v-model="checkedArrDel">
+					<a href="javascript:;">
+						<div class="img-box" v-on:click="links(goods.id,goods.spec_id)">
+							<img class="mui-media-object mui-pull-left" :src="goods.img">
+						</div>
+						<div class="mui-media-body" v-on:click="links(goods.id,goods.spec_id)">{{goods.name}}
+							<p class="cell-price">¥ {{goods.price}}</p>
+						</div>
+						<div class="total-piece" v-if="editOff">共 {{goods.num}} 件
+							<div class="goods_del" v-on:click="delGoods([goods])" style="color: red;">删除</div>
+						</div>
+						
+						<div class="mui-numbox" v-if="!editOff">
+							<button class="mui-btn mui-btn-numbox-minus" type="button" v-on:click="min(index)">-</button>
+							<input class="mui-input-numbox" type="text" v-on:keyup="setNum(index,$event)" v-on:blur="changeBlur(index,$event)" v-bind:value="goods.num" />
+							<button class="mui-btn mui-btn-numbox-plus" type="button" v-on:click="max(index)">+</button>
+						</div>
+					</a>
+				</li>
+			</ul>
+			<div id="data-null"></div>
+		</div>
+		<div class="outermost-layer mycart">
+			<div class="flex-bottom">
+				<ul>
+					<li>
+						<input name="checkbox" v-on:change="checkedAll($event)" v-model="checkedAlls" type="checkbox">
+						<a>全选</a>
+					</li>
+					<li v-if="!editOff">
+						<a>实付：<span>¥ {{parice_con}}</span></a>
+					</li>
+				</ul>
+				<div class="bottom-order" v-on:click="delGoods(checkedArrDel)" v-if="editOff">删除（<span>{{checkedArrDel.length}}</span>）</div>
+				<div class="bottom-order" v-on:click="goOrder(checkedArr)" v-else>去结算（<span>{{checkedArr.length}}</span>）</div>
+			</div>
+		</div>
+		</div>
+		<link rel="stylesheet" href="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.css">
+		<script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+		<script src="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.js" charset="utf-8"></script>
+		<script type="text/javascript">
+			//数据操作
+			var ve = new Vue({
+				el: "#app",
+				data: {
+					list: [],
+					parice_con:'0.00',
+					checkedArr:[],
+					editOff:false,
+					checkedArrDel:[],
+					checkedAlls:false,
+					uid:"<?=$uid?>"
+				},
+				methods: {
+					links: function(id,spec_id) {
+						window.location.href="<?=site_url('goods/details/')?>"+id;
+						sessionStorage.setItem('shopping_'+id,spec_id);
+					},
+					min:function(index){
+						//产品数量减少
+						var item=this.list[index];
+						var num=parseInt(item.num)-1;
+						if(num<=0){
+							num=1;
+						}else{
+							this.priceSun(item,"reduce");
+						}
+						item.num=num;
+						Vue.set(this.list,index,item);
+						this.logStorage();
+					},
+					max:function(index){
+						//产品数量增加
+						let item=this.list[index];
+						let num=parseInt(item.num);
+						let stock=parseInt(item.stock);//产品库存
+						if(num<stock){
+							this.priceSun(item,"add");
+							num++;
+						}else{
+							item.num=stock;
+						}
+						item.num=num;
+						Vue.set(this.list,index,item);
+						this.logStorage();
+					},priceSun:function(goods,type){
+						//增加或者递减师价格计算
+						let parice_con=parseFloat(this.parice_con);
+						let price=parseFloat(goods.price);
+						let id=goods.us_id;
+						let checked=document.getElementById('check_'+id).checked;
+						if(checked){
+							if(type=="add"){
+								this.parice_con=(parice_con+price).toFixed(2);
+							}
+							if(type=="reduce"){
+								this.parice_con=(parice_con-price).toFixed(2);
+							}
+						}
+					},
+					delGoods:function(delArr){
+						let del_len=delArr.length;
+						if(del_len>0){
+							let thisE=this;
+							//删除购物车产品
+							let shopPingArr=this.list;    //购物车原数据
+							let checkedArr=this.checkedArr;//已经选中的数据
+							let checkedArrDel=this.checkedArrDel;
+							//删除后重置原始数据
+							shopPingArr=shopPingArr.filter((elt)=>{
+								let checked= delArr.some((elts)=>{
+									return elt.us_id===elts.us_id;
+								})
+								return !checked;
+							})
+							//删除后重置已经选择
+							checkedArr=checkedArr.filter((elt)=>{
+								let checked= delArr.some((elts)=>{
+									return elt.us_id===elts.us_id;
+								})
+								return !checked;
+							})
+							//重置删除数据元素
+							checkedArrDel=checkedArrDel.filter((elt)=>{
+								let checked= delArr.some((elts)=>{
+									return elt.us_id===elts.us_id;
+								})
+								return !checked;
+							})
+							
+							mui.confirm("确认要删除这"+del_len+"种商品吗？"," ",['确认','取消'],function(o){
+							
+								if(o.index==0){
+									//删除购物车开始
+									hui.loading("删除中...");
+									mui.ajax('<?=site_url("storage/delShopPing")?>',{
+										data:{data:delArr},
+										dataType:'json',//服务器返回json格式数据
+										type:'post',//HTTP请求类型
+										timeout:10000,//超时时间设置为10秒；
+										success:function(res){
+											hui.closeLoading(function(){
+												if(res.state){
+													mui.toast(res.msg, {duration: '2000ms',type: 'div'});
+													//ajax执行完毕后执行该操作删除操作
+													thisE.list=shopPingArr;
+													thisE.checkedArr=checkedArr;
+													thisE.checkedArrDel=checkedArrDel;
+													thisE.restPrice(); //计算价格总和
+													if(shopPingArr.length===checkedArrDel.length){
+														if(shopPingArr.length===0){
+															thisE.checkedAlls=false;
+															mescroll.resetUpScroll();
+														}else{
+															thisE.checkedAlls=true;	
+														}
+													}
+													thisE.logStorage();
+													
+												}else{
+													mui.toast(res.msg, {duration: '2000ms',type: 'div'});	
+												}
+											});
+										},
+										error:function(xhr,type,errorThrown){
+											//异常处理；
+											mui.toast("网络发生错误！", {duration: '1000ms',type: 'div'});
+										}
+									});
+								}
+								
+							})
+						
+						}else{
+							mui.toast("您还没有选择商品！", {duration: '500ms',type: 'div'});
+						}
+						
+					},
+					goOrder:function(data){
+						//去下单
+						let dataLen=data.length;
+						if(dataLen>0){
+							mui.confirm("确认要购买这"+dataLen+"种商品吗？"," ",['确认','取消'],function(o){
+								if(o.index==0){
+									let order_data=[];
+									data.forEach((item)=>{
+										order_data.push({id:item.id,num:item.num,spec_id:item.spec_id,shop_id:item.shop_id,us_id:item.us_id});
+									})
+									hui.loading("订单提交中...");
+									mui.ajax('<?=site_url("order/orderLog")?>',{
+										data:{order:order_data},
+										dataType:'json',//服务器返回json格式数据
+										type:'post',//HTTP请求类型
+										timeout:10000,//超时时间设置为10秒；
+										success:function(res){
+											hui.closeLoading(function(){
+												if(res.state){
+													mui.confirm("请在24小时之内完成支付！"," ",['知道了'],function(){
+														window.location.href="<?=site_url('order/index/')?>"+res.order_code;  
+													})
+												}else{
+													if(res.code===101){
+														sign_out();
+													}else{
+														mui.toast(res.msg, {duration: '500ms',type: 'div'});
+													}
+												}
+											});
+										},
+										error:function(xhr,type,errorThrown){
+											//异常处理；
+											mui.toast("网络发生错误！", {duration: '1000ms',type: 'div'});
+										}
+									});
+									
+								}
+							})
+						}else{
+							mui.toast("您还没有选择商品！", {duration: '500ms',type: 'div'});
+						}
+						
+					},
+					checkboxBtn:function(goods,e){
+						//选中或者取消后重新重新计算价格
+						if(this.list.length!=0){
+							if(this.list.length===this.checkedArr.length){
+								this.checkedAlls=true;
+							}else{
+								this.checkedAlls=false;
+							}
+						}else{
+							this.checkedAlls=false;
+						}
+						
+						let checked=e.target.checked;
+						let parice_con=parseFloat(this.parice_con);//获取当前价格
+						let price=parseFloat(goods.price); //获取价格
+						let num=parseInt(goods.num);       //获取购买数量
+						if(checked){
+							this.parice_con=(parice_con+(price*num)).toFixed(2);
+						}else{
+							this.parice_con=(parice_con-(price*num)).toFixed(2);
+						}
+						this.logStorage();
+					},
+					checkboxDel:function(goods,e){
+						if(this.list.length!=0){
+							if(this.list.length===this.checkedArrDel.length){
+								this.checkedAlls=true;
+							}else{
+								this.checkedAlls=false;
+							}
+						}else{
+							this.checkedAlls=false;
+						}
+						this.logStorage();
+					},
+					checkedAll:function(e){
+						//全选操作
+						let thisE=this;
+						let off=this.editOff;
+						let checked=e.target.checked;
+						if(off){
+							if(checked){
+								this.checkedArrDel=[];
+								this.list.forEach((item,index)=>{
+									this.checkedArrDel.push(item);						
+								})
+							}else{
+								this.checkedArrDel=[];
+							}
+						}else{
+							if(checked){
+								this.checkedArr=[];
+								this.list.forEach((item,index)=>{
+									this.checkedArr.push(item);						
+								})
+							}else{
+								this.checkedArr=[];
+							}
+							this.restPrice();
+						}
+						this.logStorage();
+					},
+					setNum:function(index,e){
+						//输入值变化
+						let thisE=this;
+						let maxNum=12;
+						//参数
+						let param={
+							item:this.list[index],  //操作当前数据
+							el:e,         			//当前输入框对象
+							maxNum:maxNum 			//限制输入最大值
+						};
+						
+						integer(param,function(o){
+							thisE.restPrice();//重新计算价格总和
+							Vue.set(thisE.list,index,o);
+						});
+						this.logStorage();
+					},
+					restPrice:function(){
+						//删除后重新计算
+						let dataArr=this.checkedArr;
+						let checkedPriceNum=0;
+						for(var i=0;i<dataArr.length;i++){
+							let goodsPrice = parseFloat(dataArr[i].price)*dataArr[i].num;
+							checkedPriceNum+=goodsPrice;
+						}
+						this.parice_con=checkedPriceNum.toFixed(2);	
+						
+					},
+					changeBlur:function(index,e){
+						//输入框失去焦点
+						let item=this.list[index];
+						if(e.target.value==""){
+							item.num=1;
+							Vue.set(this.list,index,item);
+						}
+						this.logStorage();
+					},
+					logStorage:function(){
+						//操作过后记录当前日志数据重新渲染后重新
+						let logShopPing={
+							list:this.list, //获取原数据
+							checkedarr:this.checkedArr, //已经别选中的购买产品
+							checkedArrDel:this.checkedArrDel //选中要被删除的
+						}
+						localStorage.setItem('userLogShopPing'+this.uid,JSON.stringify(logShopPing));
+					}
+				}
+			})
+			
+			//输入正整数
+			function integer(param,fun){
+				let item=param.item;
+				let e=param.el;
+				let num=parseInt(item.num);
+				let maxNum=parseInt(item.stock); 
+				let v=e.target.value;
+				
+				if(v!=""){
+					v=parseInt(v);
+					if(isNaN(v)){
+						item.num=num;
+					}else{
+						e.target.value = e.target.value.replace(/[^\d]/g,"");
+						if(v<=0){
+							item.num=num;
+						}else{
+							if(v>=maxNum){
+								item.num=maxNum;
+							}else{
+								item.num=v;
+							}
+						}
+					}
+					fun(item);
+				}else{
+					e.target.value="";
+				}
+			}
+			
+			//总价格计算
+			var price_sun=0;
+			function priceCoun(goods){
+				var price=parseFloat(goods.price);
+				price_sun=price_sun+price;
+				ve.parice_con=price_sun;
+				console.log(price_sun);
+			}
+          
+          
+          
+			//编辑按钮切换
+			document.getElementById('edit_btn').addEventListener('tap',function(){
+				ve.checkedAlls=false;
+				if(ve.editOff){
+					$(this).text("编辑");
+					if(ve.list.length!=0){
+						if(ve.list.length===ve.checkedArr.length){
+							ve.checkedAlls=true;
+						}
+					}else{
+						ve.checkedAlls=false;
+					}
+					
+				}else{
+					$(this).text("完成");
+					if(ve.list.length!=0){
+						if(ve.list.length===ve.checkedArrDel.length){
+							ve.checkedAlls=true;
+						}
+					}else{
+						ve.checkedAlls=false;
+					}
+				}
+				ve.editOff=!ve.editOff;
+			})
+			//数据刷新
+			var mescroll = new MeScroll("mescroll", {
+				down: {
+					isLock:true,
+					auto: false
+				},
+				up: {
+					callback: upCallback,
+					isBounce: false, //此处禁止ios回弹,解析(务必认真阅读,特别是最后一点): http://www.mescroll.com/qa.html#q10
+					page: {
+						num: 0, //当前页数
+						size: 1000 //每页显示条数
+					},
+					htmlNodata: '<p class="upwarp-nodata">--没有更多了--</p>',
+					noMoreSize: 10, //数据大于多少条时显示htmlNodata
+					toTop: {
+						//回到顶部
+						src: "http://www.mescroll.com/demo/res/img/mescroll-totop.png", //回到顶部图片样子
+						offset: 10 //滚动到多少个PX时出现回到顶部
+					},
+					empty: {
+						warpId: "data-null",
+						//icon:"http://www.mescroll.com/demo/dotJump/option/mescroll-empty.png",
+						tip: '<div class="nolist-div" style="background:#fff;"><span class="iconfont icon-zanwuxinxi"></span><p>购物车暂无商品</p></div>'
+					}
+				}
+			})
+			//上拉加载回调函数
+			function upCallback(page) {
+				data_ajax({
+					page: page.num,
+					limit: page.size,
+					index: "1"
+				}, function(pageTool, data) {
+					var len = data.length;
+					if(page.num == 1) {
+						ve.list = [];
+						price_sun=0;
+					}
+					mescroll.endByPage(len, pageTool);
+					for(var i = 0; i < data.length; i++) {
+						ve.list.push(data[i]);
+					}
+				})
+			}
+			//服务器端数据
+			function data_ajax(data, succEvent) {
+				setTimeout(function() {
+					//ajax获取数据
+					$.ajax({
+						url: "<?=site_url('storage/shopping')?>",
+						data: data,
+						dataType: "json",
+						type: "get",
+						timeout:10000,
+						success: function(res) {
+							if(res.state === "success") {
+								succEvent(res.pageTool, res.data);
+							}
+						},error:function(data){
+							//异常处理；
+							mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+							mescroll.endErr();
+						}
+					});
+				}, 500)
+			}
+			
+			
+		</script>
+
+	

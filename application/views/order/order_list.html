@@ -1,0 +1,316 @@
+<style type="text/css">
+    body,
+    html {
+        background: #ffffff;
+    }
+</style>
+
+<body class="all-of-order" id="my-guarantor">
+    <div class="cl-filter">
+        <div class="active" data-index="0">
+            <a>全部</a>
+        </div>
+        <div data-index="1">
+            <a>待付款</a>
+        </div>
+        <div data-index="2">
+            <a>待安装</a>
+        </div>
+        <div data-index="3">
+            <a>已完成</a>
+        </div>
+    </div>
+    <div class="quorantin-div"></div>
+    <div class="index-secondcontent list1" id="app" v-cloak>
+        <div id="mescroll0" class="mescroll" style="height: 92vh;">
+            <ul id="dataList0" class="column-content">
+                <li v-for="item in list0" v-on:click="linke(item.state,item.number,item.order_code)">
+                    <p class="order-number relative">
+                        订单编号：{{item.number}}
+                        <span class="right" v-if="item.state==='1'">
+                            <template v-if="item.states==='2'">未发货</template>  
+                            <template v-if="item.states==='3'">未出库</template> 
+                            <template v-if="item.states==='4'">已发货</template>
+                            <template v-if="item.states==='5'">待安装</template> 
+                            <template v-if="item.states==='6'">已安装</template> 
+                            <template v-if="item.states==='10'">已完成</template>   
+                        </span>
+                        <span class="right" v-if="item.state==='4'">
+                            <template v-if="item.states==='7'">退货中</template>
+                            <template v-if="item.states==='8'&& item.refund_state==='1'">已退款</template>
+                            <template v-if="item.states==='8'&& item.refund_state==='2'">退款中</template>  
+                        </span>
+                        <span class="right" v-if="item.state==='2'">已取消</span>
+                        <span class="right" v-if="item.state==='3'">待付款</span>
+                        <span class="border"></span>
+                    </p>
+                    <div class="img">
+                        <img class="mui-media-object" :src="item.goods_img">
+                    </div>
+                    <div class="relative">
+                        <p class="name">{{item.goods_name}}</p>
+                        <p class="cell">试用排量：{{item.goods_cggs_name}} </p>
+                        <p class="site">适用车型：{{item.goods_ct_name}} - {{item.goods_cs_name}} - {{item.goods_cgs_name}}</p>
+                        <span class="span1">共{{item.order_num}}件<span class="price">¥ {{item.sum_money}}</span></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div id="mescroll1" class="mescroll" style="height: 92vh;display:none">
+            <ul id="dataList1" class="column-content">
+                <li v-for="item in list1" v-on:click="linke(item.state,item.number,item.order_code)">
+                    <p class="order-number relative">
+                        订单编号：{{item.number}}
+                        <span class="right" v-if="item.state==='3'">待付款</span>
+                        <span class="border"></span>
+                    </p>
+                    <div class="img">
+                        <img class="mui-media-object" :src="item.goods_img">
+                    </div>
+                    <div class="relative">
+                        <p class="name">{{item.goods_name}}</p>
+                        <p class="cell">试用排量：{{item.goods_cggs_name}} </p>
+                        <p class="site">适用车型：{{item.goods_ct_name}} - {{item.goods_cs_name}} - {{item.goods_cgs_name}}</p>
+                        <span class="span1">共{{item.order_num}}件<span class="price">¥ {{item.sum_money}}</span></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div id="mescroll2" class="mescroll" style="height: 92vh;display:none">
+            <ul id="dataList2" class="column-content">
+                <li v-for="item in list2" v-on:click="linke(item.state,item.number,item.order_code)">
+                    <p class="order-number relative">
+                        订单编号：{{item.number}}
+                        <span class="right" v-if="item.states==='5'">待安装</span>
+                        <span class="border"></span>
+                    </p>
+                    <div class="img">
+                        <img class="mui-media-object" :src="item.goods_img">
+                    </div>
+                    <div class="relative">
+                        <p class="name">{{item.goods_name}}</p>
+                        <p class="cell">试用排量：{{item.goods_cggs_name}} </p>
+                        <p class="site">适用车型：{{item.goods_ct_name}} - {{item.goods_cs_name}} - {{item.goods_cgs_name}}</p>
+                        <span class="span1">共{{item.order_num}}件<span class="price">¥ {{item.sum_money}}</span></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div id="mescroll3" class="mescroll" style="height: 92vh;display:none">
+            <ul id="dataList3" class="column-content">
+                <li v-for="item in list3">
+                    <p class="order-number relative">
+                        订单编号：{{item.number}}
+                        <span class="right" v-if="item.states==='6'"  v-on:click="linke(item.states,item.number,item.order_code)">查看质保</span>
+                        <span class="border"></span>
+                    </p>
+                   
+                    <div class="img"  v-on:click="linke(item.state,item.number,item.order_code)">
+                        <img class="mui-media-object" :src="item.goods_img">
+                    </div>
+                    <div class="relative"  v-on:click="linke(item.state,item.number,item.order_code)">
+                        <p class="name">{{item.goods_name}}</p>
+                        <p class="cell">试用排量：{{item.goods_cggs_name}} </p>
+                        <p class="site">适用车型：{{item.goods_ct_name}} - {{item.goods_cs_name}} - {{item.goods_cgs_name}}</p>
+                        <span class="span1">共{{item.order_num}}件<span class="price">¥ {{item.sum_money}}</span></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+    <link rel="stylesheet" href="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.css">
+    <script src="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.js" charset="utf-8"></script>
+    <script>
+      var old_back = mui.back;
+      	mui.back = function(){
+       if(localStorage.getItem('pay_state')){
+              localStorage.removeItem('pay_state');
+              window.location.href="<?=site_url('/personal/index')?>";
+            
+          }else{
+         
+            old_back();
+          }
+      }
+      
+        var ve = new Vue({
+            el: "#app",
+            data: {
+                list0: [],
+                list1: [],
+                list2: [],
+                list3: [],
+            },
+            methods: {
+               linke:function (state,number,code) {
+                  if(state==="3"){
+                    window.location.href="<?=site_url('order/index/')?>"+code;
+                  }else if(state==="6"){
+                   window.location.href="<?=site_url('order/order_ok_img/')?>"+number;
+                  }else{
+                    window.location.href="<?=site_url('order/details/')?>"+number;
+                  }
+                }
+            }
+        })
+        var curTabIndex =<?=$index?>; //默认显示选项
+
+        var mescrollArr = new Array(4); //4个对应下拉mescroll对象
+        //初始化首页
+        if(curTabIndex===0){
+           mescrollArr[0] = initMescroll("mescroll0", "dataList0");
+        }
+       
+        //初始化菜单
+        $(".cl-filter div").click(function () {
+            tabActive(this, function (curr) {
+                mescrollTab(curr);
+            })
+        })
+
+        tabActive($(".cl-filter div").eq(curTabIndex),function(curr){
+            mescrollTab(curr);
+        })
+        //选择后操作
+        function mescrollTab(curr){
+            var index = curr.index;
+            if (mescrollArr[index] == null) {
+                //初始化对应的页面对象
+                mescrollArr[index] = initMescroll("mescroll" + index, "dataList" + index);
+            } else {
+                //检查是否需要显示回到到顶按钮
+                var curMescroll = mescrollArr[index];
+                var curScrollTop = curMescroll.getScrollTop();
+                if (curScrollTop >= curMescroll.optUp.toTop.offset) {
+                    curMescroll.showTopBtn();
+                } else {
+                    curMescroll.hideTopBtn();
+                }
+            }
+            curTabIndex = index;
+        }
+
+        //选项卡
+        function tabActive(el, fun) {
+            var data = $(el).data();
+            $(".cl-filter div").removeClass('active');
+            $(el).addClass('active');
+            $(".mescroll").hide();
+            $("#mescroll" + data.index).show();
+            fun(data);
+        }
+
+        /*创建MeScroll对象*/
+        function initMescroll(mescrollId, clearEmptyId) {
+            var mescroll = new MeScroll(mescrollId, {
+                up: {
+                    callback: upCallback,
+                    isBounce: false, //此处禁止ios回弹,解析(务必认真阅读,特别是最后一点): http://www.mescroll.com/qa.html#q10
+                    page: {
+                        num: 0, //当前页数
+                        size: 10 //每页显示条数
+                    },
+                    htmlNodata: '<p class="upwarp-nodata">--没有更多了--</p>',
+                    noMoreSize: 10, //数据大于多少条时显示htmlNodata
+                    clearEmptyId: clearEmptyId, //相当于同时设置了clearId和empty.warpId
+                    toTop: {
+                        //回到顶部
+                        src: "http://www.mescroll.com/demo/res/img/mescroll-totop.png", //回到顶部图片样子
+                        offset: 10 //滚动到多少个PX时出现回到顶部
+                    },
+                    empty: {
+                        //icon: "http://www.mescroll.com/demo/dotJump/option/mescroll-empty.png",
+                        tip: '<div class="nolist-div" style="background:#fff;"><span class="iconfont icon-zanwuxinxi"></span><p>暂无订单</p></div>',
+//						btntext: "去逛逛>>",
+//						btnClick: function() {
+//							alert("去哪里逛逛");
+//						}
+                    },
+                    lazyLoad: {
+                        use: true // 是否开启懒加载,默认false
+                    }
+                }
+            })
+            return mescroll;
+        }
+
+        //上拉加载回调函数
+        var index = 0;
+
+        function upCallback(page) {
+            data_ajax({
+                page: page.num,
+                limit: page.size,
+            },
+                function (pageTool, data) {
+                    mescrollArr[curTabIndex].endByPage(data.length, pageTool);
+                    if(curTabIndex == 0) {
+                        for (var i = 0; i < data.length; i++) {
+                            ve.list0.push(data[i]);
+                        }
+                    }else if (curTabIndex == 1) {
+                        for (var i = 0; i < data.length; i++) {
+                            ve.list1.push(data[i]);
+                        }
+                    }else if (curTabIndex == 2) {
+                        for (var i = 0; i < data.length; i++) {
+                            ve.list2.push(data[i]);
+                        }
+                    }else if (curTabIndex == 3) {
+                        for (var i = 0; i < data.length; i++) {
+                            ve.list3.push(data[i]);
+                        }
+                    }
+                })
+        }
+       
+        //模拟服务器端数据
+        function data_ajax(data, succEvent) {
+            let daraUrl = "<?=site_url('order/my_order_data')?>";
+            if (curTabIndex == 0) {data.state = "";}
+            if (curTabIndex == 1) {data.state = "3";}
+            if (curTabIndex == 2) {data.states = "5";}
+            if (curTabIndex == 3) {data.states = "6";}
+            //如果是0下拉刷新后追加数据
+            setTimeout(function () {
+                //ajax获取数据
+                $.ajax({
+                    url: daraUrl,
+                    data: data,
+                    dataType: "json",
+                    type: "get",
+                    timeout: 10000,
+                    success: function (res) {
+                        if (res.state === "success") {
+                            succEvent(res.pageTool, res.data);
+                        }
+                    }, error: function (data) {
+                        //异常处理；
+                        mui.toast("网络发生错误！", { duration: '2000ms', type: 'div' });
+                        mescrollArr[curTabIndex].endErr();
+                    }
+                });
+            }, 500)
+        }
+
+    </script>
+
+
+    <!-- <div class="list2">
+			<p>1.非质量问题车主退货要扣除邮费；<br>
+				2.车主在24小时之内未付款，订单自动取消。
+			</p>
+		</div> -->
+    <!-- <div style="display:none;" class="mui-backdrop">
+		</div>
+		<div style="display:none;" class="index-layer fill-reason">
+			<div class="fill-reason-title">请填写退款原因</div>
+			<div>
+				<textarea maxlength="150" placeholder="请填写退款原因限150字符" cols=""></textarea>
+			</div>
+			<div class="cancelorsure">
+				<a>取消</a>
+				<a>保存</a>
+			</div>
+		</div> -->

@@ -1,0 +1,52 @@
+<style type="text/css">
+	#img_list1{
+		position: relative;
+	}
+	#img_list1 li{
+		width: 100px;
+		height: 100px;
+		float: left;
+		margin-right: 15px;
+		position: relative;
+	}
+	#img_list1 li img{
+		max-width: 100%;
+		height: 100%;
+	}
+	#img_list1 li .img_close_btn{
+		position: absolute;
+		right: 0;
+		top: 0;
+		background: red;
+		width: 20px;
+		height: 20px;
+	}
+</style>
+
+<ul id="img_list1" class="imgUpList">
+	<li>
+		<div class="vdlImgAddBtn">
+			<input type="file" name="file" class="vdlAddFileBtn" accept="image/*" />
+		</div>
+	</li>
+</ul>
+
+<script type="text/javascript">
+	$(function(){
+		$(".vdlImgAddBtn input").change(function(e){
+			var thisE=this,f=thisE.files[0],form=new FormData();
+			var prev=$(this).parents("li");
+		    form.append('file',f);
+		    form.append('path',"test");
+		 	vdl.ajax_upload({url:"<?=site_url('main/upload')?>",data:form},function(res){
+		 		$(thisE).val('');
+		 		if(res.error===0){
+		 			var htmlE='<li><a class="img_close_btn"></a><img src="'+res.path+'"/></li>';
+		 			vdl.add_img(htmlE,prev,3,thisE);
+		 		}else{
+		 			console.log("图片上传失败");
+		 		}
+		 	});
+		})
+	})
+</script>

@@ -1,0 +1,26 @@
+
+<script>
+ function addData() {
+   let user_address=localStorage.getItem('user_address');
+   if(user_address){
+     user_address=JSON.parse(user_address)
+     // console.log(user_address)
+     $("#mail_sum").text(user_address.userMail);
+     $("#city-text").text(user_address.city);
+   }
+ }
+ 
+ function backs(){
+ 	mui.back();
+ }
+
+</script>
+
+<div id="onload">
+  <div class="spinner">
+    <div class="double-bounce1"></div>
+    <div class="double-bounce2"></div>
+  </div>
+</div>
+	</body>
+</html>

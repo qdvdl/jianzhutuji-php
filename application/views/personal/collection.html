@@ -1,0 +1,226 @@
+<body id="my-collection">
+	<div class="cl-filter">
+		<div class="active" data-index="0">
+			<a>商品</a>
+		</div>
+		<div data-index="1">
+			<a>维修站</a>
+		</div>
+		<div data-index="2">
+			<a>监测站</a>
+		</div>
+	</div>
+	<div class="index-secondcontent" id="app" v-cloak>
+		<div id="mescroll0" class="mescroll" style="height: 92vh;">
+			<ul id="dataList0" class="mui-table-view mui-grid-view Purchase-list">
+				<li class="mui-table-view-cell mui-media mui-col-xs-6" v-for="item in list0">
+					<a v-on:click="links('<?=site_url('goods/details/')?>'+item.id)">
+						<div class="border-box">
+							<img class="mui-media-object" :src="item.img">
+							<div class="mui-media-body comodity">{{item.name}}</div>
+							<div class="mui-media-body amounts">￥ {{item.price}}</div>
+							<div class="mui-media-body sold">已售：{{item.sales}}单</div>
+						</div>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<div id="mescroll1" class="mescroll" style="display:none;height: 92vh;">
+			<ul id="dataList1" class="column-content">
+				<li v-for="item in list1">
+					<a v-on:click="links('<?=site_url('shop/details/')?>'+item.id,item.distance)">
+						<div>
+							<img :src="item.img">
+						</div>
+						<div>
+							<p class="name">{{item.name}}</p>
+							<p class="cell"><span class="iconfont icon-cell"></span>{{item.service_tel}} &thinsp; {{item.distance}}km &thinsp; <span class="right-arrow">›</span></p>
+							<p class="site"><span class="iconfont icon-dingweiweizhi"></span>{{item.province}}{{item.city}}{{item.area}}{{item.address}}</p>
+						</div>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<div id="mescroll2" class="mescroll" style="display:none;height: 92vh;">
+			<ul id="dataList2" class="column-content">
+				<li v-for="item in list2">
+					<a v-on:click="links('<?=site_url('testing/details/')?>'+item.id,item.distance)">
+						<div>
+							<img :src="item.img">
+						</div>
+						<div>
+							<p class="name">{{item.name}}</p>
+							<p class="cell"><span class="iconfont icon-cell"></span>18280202548 &thinsp; {{item.distance}}km &thinsp; <span class="right-arrow">›</span></p>
+							<p class="site"><span class="iconfont icon-dingweiweizhi"></span>{{item.province}}{{item.city}}{{item.area}}{{item.address}}</p>
+						</div>
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<link rel="stylesheet" href="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.css">
+	<script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+	<script src="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.js" charset="utf-8"></script>
+	<script type="text/javascript">
+		var ve = new Vue({
+			el: "#app",
+			data: {
+				list0: [],
+				list1: [],
+				list2: []
+			},
+			methods: {
+				links: function(url,distance) {
+					if(distance){
+						sessionStorage.setItem('distance',distance);	
+					}
+					window.location.href =url;
+					//window.location.href="<?=site_url('testing/details/')?>"+id;
+				}
+			}
+		})
+
+		var curTabIndex = 0; //默认显示选项
+		var mescrollArr = new Array(3); //4个对应下拉mescroll对象
+		//初始化首页
+		mescrollArr[0] = initMescroll("mescroll0", "dataList0");
+		//初始化菜单
+		$(".cl-filter div").click(function() {
+
+			tabActive(this, function(curr) {
+				var index = curr.index;
+				if(mescrollArr[index] == null) {
+					//初始化对应的页面对象
+					mescrollArr[index] = initMescroll("mescroll" + index, "dataList" + index);
+				} else {
+					//检查是否需要显示回到到顶按钮
+					var curMescroll = mescrollArr[index];
+					var curScrollTop = curMescroll.getScrollTop();
+					if(curScrollTop>=curMescroll.optUp.toTop.offset){
+						curMescroll.showTopBtn();
+					}else{
+						curMescroll.hideTopBtn();
+					}
+				}
+				curTabIndex = index;
+			})
+
+		})
+
+		//选项卡
+		function tabActive(el, fun) {
+			var data = $(el).data();
+			$(".cl-filter div").removeClass('active');
+			$(el).addClass('active');
+			$(".mescroll").hide();
+			$("#mescroll" + data.index).show();
+			fun(data);
+		}
+		/*创建MeScroll对象*/
+		function initMescroll(mescrollId, clearEmptyId) {
+			var mescroll = new MeScroll(mescrollId, {
+				up: {
+					callback: upCallback,
+					isBounce: false, //此处禁止ios回弹,解析(务必认真阅读,特别是最后一点): http://www.mescroll.com/qa.html#q10
+					page: {
+						num: 0, //当前页数
+						size: 10 //每页显示条数
+					},
+					htmlNodata: '<p class="upwarp-nodata">--没有更多了--</p>',
+					noMoreSize: 10, //数据大于多少条时显示htmlNodata
+					clearEmptyId: clearEmptyId, //相当于同时设置了clearId和empty.warpId
+					toTop: {
+						//回到顶部
+						src: "http://www.mescroll.com/demo/res/img/mescroll-totop.png", //回到顶部图片样子
+						offset: 10 //滚动到多少个PX时出现回到顶部
+					},
+					empty: {
+						//icon: "http://www.mescroll.com/demo/dotJump/option/mescroll-empty.png",
+						tip: '<div class="nolist-div" style="background:#fff;"><span class="iconfont icon-zanwuxinxi"></span><p>暂无收藏</p></div>',
+//						btntext: "去逛逛>>",
+//						btnClick: function() {
+//							alert("去哪里逛逛");
+//						}
+					},
+					lazyLoad: {
+						use: true // 是否开启懒加载,默认false
+					}
+				}
+			})
+			return mescroll;
+		}
+
+		//上拉加载回调函数
+		var index = 0;
+
+		function upCallback(page) {
+			data_ajax({
+				page: page.num,
+				limit: page.size,
+			}, 
+			function(pageTool,data) {
+				mescrollArr[curTabIndex].endByPage(data.length, pageTool);
+				if(curTabIndex == 0) {
+					for(var i = 0; i < data.length; i++) {
+						ve.list0.push(data[i]);
+					}
+				} else if(curTabIndex == 1) {
+					for(var i = 0; i < data.length; i++) {
+						ve.list1.push(data[i]);
+					}
+				} else if(curTabIndex == 2) {
+					for(var i = 0; i < data.length; i++) {
+						ve.list2.push(data[i]);
+					}
+				}
+			})
+		}
+		let	lng=104.082597;
+	    let	lat=30.639699;
+		//模拟服务器端数据
+		function data_ajax(data, succEvent) {
+			let daraUrl="<?=site_url()?>";
+			if(curTabIndex==0){
+				daraUrl+="/personal/collection";
+				data.type="goods";
+			}
+			if(curTabIndex==1){
+				daraUrl+="/personal/collection";
+				data.type="shop";
+				data.lng=lng;
+				data.lat=lat;
+			}
+			if(curTabIndex==2){
+				daraUrl+="/personal/collection";
+				data.type="testing";
+				data.lng=lng;
+				data.lat=lat;
+			}
+			
+			
+			
+			//如果是0下拉刷新后追加数据
+			setTimeout(function() {
+				//ajax获取数据
+				$.ajax({
+					url:daraUrl,
+					data:data,
+					dataType: "json",
+					type: "get",
+					timeout:10000,
+					success: function(res) {
+						if(res.state === "success") {
+							succEvent(res.pageTool, res.data);
+						}
+					},error:function(data){
+						//异常处理；
+						mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+						mescrollArr[curTabIndex].endErr();
+					}
+				});
+			}, 500)
+		}
+
+	
+	</script>

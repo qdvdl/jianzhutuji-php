@@ -1,0 +1,91 @@
+<body id="website-news-list">
+	<div id="mescroll" class="mescroll">
+		<ul class="news-list" id="app" v-cloak>
+			<li v-for="item in list" v-on:tap="links(item.id)">
+				<span class="date">{{item.issuer_time}}</span>
+				<div class="img-box">
+					<img :src="item.imgurl" >
+				</div>
+				<!-- <span class="number">2</span> -->
+				<h4>{{item.title}}</h4>
+				<p>{{item.content}}</p>
+			</li>
+		</ul>
+		<div id="data-null"></div>
+	</div>
+	<link rel="stylesheet" href="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.css">
+	<script type="text/javascript" src="<?=base_url('resource');?>/js/vue-2.5.16.js"></script>
+	<script src="https://img.ybl-group.com/mescroll/1.4.0/mescroll.min.js" charset="utf-8"></script>
+	<script type="text/javascript">
+		var ve=new Vue({
+			el:"#app",
+			data:{
+				list:[]
+			},
+			methods:{
+				links:function(id){
+					window.location.href="<?=site_url('article/details/')?>"+id;
+				}
+			}
+		})
+		//刷新框架
+		var mescroll=new MeScroll("mescroll",{
+			up:{
+				callback: upCallback,	
+				isBounce: false,//此处禁止ios回弹,解析(务必认真阅读,特别是最后一点): http://www.mescroll.com/qa.html#q10
+				page:{
+					num:0,  //当前页数
+					size:10 //每页显示条数
+				},
+				htmlNodata:'<p class="upwarp-nodata">--没有更多了--</p>',
+				noMoreSize:10, //数据大于多少条时显示htmlNodata
+				toTop:{ 
+					//回到顶部
+					src:"http://www.mescroll.com/demo/res/img/mescroll-totop.png",//回到顶部图片样子
+					offset: 10	//滚动到多少个PX时出现回到顶部
+				},
+				empty:{
+					warpId:"data-null",
+					//icon:"http://www.mescroll.com/demo/dotJump/option/mescroll-empty.png",
+					tip:"<div class='nolist-div'><span class='iconfont icon-zanwuxinxi'></span><p>暂无咨询信息</p></div>"
+				}
+			}
+		})
+		//上拉加载回调函数
+		var index=0;
+		function upCallback(page){
+			setTimeout(function(){
+				data_ajax({page:page.num,limit:page.size},function(pageTool,data){
+					if(page.num==1){
+						ve.list=[];
+					}
+					mescroll.endByPage(data.length, pageTool);
+					for(var i=0;i<data.length;i++){
+						ve.list.push(data[i]);
+					}
+				})
+			},500)
+		}
+		//模拟服务器端数据
+		function data_ajax(data,succEvent){
+			//ajax获取数据
+			$.ajax({
+				url:"<?=site_url('article/get_article')?>",
+				data:data,
+				dataType:"json",
+				type:"get",
+				timeout:10000,
+				success:function(res){
+					if(res.state==="success"){
+						succEvent(res.pageTool,res.data);
+					}
+				},
+				error:function(data){
+					//异常处理；
+					mui.toast("网络发生错误！", {duration: '2000ms',type: 'div'});
+					mescroll.endErr();
+				}
+			});
+		}
+		
+	</script>
