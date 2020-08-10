@@ -1,4 +1,5 @@
 <?php
+//测试文件
 	$db['default'] = array(
 		'dsn'	=> '',
 		'hostname' => 'localhost',
